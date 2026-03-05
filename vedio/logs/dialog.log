@@ -1,0 +1,138 @@
+2026-03-03 23:44:50.133 | INFO     | voice_dialog.websocket_server:run_server:187 - 启动WebSocket服务器: ws://0.0.0.0:8765
+2026-03-03 23:49:40.490 | INFO     | voice_dialog.websocket_server:run_server:187 - 启动WebSocket服务器: ws://0.0.0.0:8765
+2026-03-03 23:50:47.434 | WARNING  | voice_dialog.modules.acoustic_vad:_init_vad:45 - webrtcvad未安装，使用模拟VAD
+2026-03-03 23:50:47.434 | WARNING  | voice_dialog.modules.qwen_omni:_init_client:73 - 未配置Qwen Omni API密钥，将使用模拟模式
+2026-03-03 23:50:47.434 | WARNING  | voice_dialog.modules.llm_planner:_init_client:81 - 未配置LLM API密钥，将使用模拟模式
+2026-03-03 23:50:47.434 | INFO     | voice_dialog.system:__init__:72 - 语音对话系统v2.0初始化完成
+2026-03-03 23:50:47.435 | INFO     | voice_dialog.websocket_server:connect:48 - 客户端连接: client_1772553047114
+2026-03-03 23:51:34.400 | INFO     | voice_dialog.core.state_machine:reset:103 - 状态机已重置
+2026-03-03 23:51:34.401 | INFO     | voice_dialog.system:reset:373 - 系统已重置
+2026-03-03 23:51:47.473 | INFO     | voice_dialog.core.state_machine:force_state:68 - 强制状态转换: idle -> listening (用户打断)
+2026-03-03 23:51:47.473 | INFO     | voice_dialog.system:_handle_interrupt:308 - 已处理打断，切换到聆听状态
+2026-03-03 23:51:52.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-03 23:51:52.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-03 23:51:52.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-03 23:51:54.557 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-03 23:52:34.452 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-03 23:52:34.453 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-03 23:52:34.453 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-03 23:52:34.453 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-03 23:52:35.805 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-03 23:52:44.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-03 23:52:44.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-03 23:52:44.434 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-03 23:52:44.545 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-03 23:52:46.631 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-03 23:53:16.784 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:61 - 检测到语音开始
+2026-03-03 23:53:17.553 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:74 - 检测到语音结束, 长度=19200 bytes
+2026-03-04 09:05:19.705 | INFO     | voice_dialog.websocket_server:run_server:214 - 启动WebSocket服务器: ws://0.0.0.0:8765
+2026-03-04 09:05:54.957 | WARNING  | voice_dialog.modules.acoustic_vad:_init_vad:45 - webrtcvad未安装，使用模拟VAD
+2026-03-04 09:05:54.958 | WARNING  | voice_dialog.modules.qwen_omni:_init_client:73 - 未配置Qwen Omni API密钥，将使用模拟模式
+2026-03-04 09:05:54.958 | WARNING  | voice_dialog.modules.llm_planner:_init_client:81 - 未配置LLM API密钥，将使用模拟模式
+2026-03-04 09:05:54.958 | INFO     | voice_dialog.system:__init__:81 - 语音对话系统v2.0初始化完成
+2026-03-04 09:05:54.958 | INFO     | voice_dialog.websocket_server:connect:52 - 客户端连接: client_1772586354598
+2026-03-04 09:06:06.513 | INFO     | voice_dialog.core.state_machine:force_state:68 - 强制状态转换: idle -> listening (用户打断)
+2026-03-04 09:06:06.514 | INFO     | voice_dialog.system:_handle_interrupt:358 - 已处理打断，切换到聆听状态
+2026-03-04 09:06:10.511 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 09:06:10.512 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 09:06:10.512 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 09:06:12.445 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 09:06:21.164 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-04 09:06:21.164 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 09:06:21.165 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 09:06:21.278 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 09:06:22.719 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 09:06:32.182 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-04 09:06:32.182 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 09:06:32.182 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 09:06:32.183 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 09:06:33.589 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 09:06:42.082 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-04 09:06:42.082 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 09:06:42.083 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 09:06:42.083 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 09:06:43.484 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 09:07:13.088 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-04 09:07:13.088 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 09:07:13.088 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 09:07:13.088 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 09:07:15.332 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 09:07:27.789 | ERROR    | voice_dialog.websocket_server:websocket_endpoint:148 - WebSocket错误: Cannot call "receive" once a disconnect message has been received.
+2026-03-04 09:07:27.789 | INFO     | voice_dialog.websocket_server:disconnect:59 - 客户端断开: client_1772586354598
+2026-03-04 14:07:50.368 | INFO     | voice_dialog.websocket_server:run_server:214 - 启动WebSocket服务器: ws://0.0.0.0:8765
+2026-03-04 14:08:14.900 | WARNING  | voice_dialog.modules.acoustic_vad:_init_vad:45 - webrtcvad未安装，使用模拟VAD
+2026-03-04 14:08:14.900 | WARNING  | voice_dialog.modules.qwen_omni:_init_client:73 - 未配置Qwen Omni API密钥，将使用模拟模式
+2026-03-04 14:08:14.901 | WARNING  | voice_dialog.modules.llm_planner:_init_client:109 - 未配置LLM API密钥，将使用模拟模式
+2026-03-04 14:08:14.901 | INFO     | voice_dialog.system:__init__:81 - 语音对话系统v2.0初始化完成
+2026-03-04 14:08:14.901 | INFO     | voice_dialog.websocket_server:connect:52 - 客户端连接: client_1772604494587
+2026-03-04 14:09:03.963 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (文本输入开始)
+2026-03-04 14:09:03.963 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (文本输入处理)
+2026-03-04 14:09:03.963 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:09:03.963 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (语音合成)
+2026-03-04 14:09:05.671 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:10:18.023 | INFO     | voice_dialog.core.state_machine:force_state:68 - 强制状态转换: idle -> listening (用户打断)
+2026-03-04 14:10:18.024 | INFO     | voice_dialog.system:_handle_interrupt:358 - 已处理打断，切换到聆听状态
+2026-03-04 14:10:26.470 | WARNING  | voice_dialog.core.state_machine:transition_to:53 - 无效状态转换: listening -> listening
+2026-03-04 14:10:31.841 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:10:31.841 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:10:31.841 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:10:31.842 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:10:31.947 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:10:33.378 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:10:40.560 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:10:46.190 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:10:46.190 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:10:46.191 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:10:46.191 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:10:46.299 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:10:47.704 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:10:54.632 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:11:01.541 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:11:01.542 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:11:01.542 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:11:01.542 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:11:01.650 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:11:03.023 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:11:09.481 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:11:14.871 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:11:14.872 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:11:14.872 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:11:14.872 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:11:14.974 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:11:16.335 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:11:16.910 | INFO     | voice_dialog.core.state_machine:force_state:68 - 强制状态转换: idle -> listening (用户打断)
+2026-03-04 14:11:16.910 | INFO     | voice_dialog.system:_handle_interrupt:358 - 已处理打断，切换到聆听状态
+2026-03-04 14:11:20.142 | INFO     | voice_dialog.core.state_machine:reset:103 - 状态机已重置
+2026-03-04 14:11:20.143 | INFO     | voice_dialog.system:reset:441 - 系统已重置
+2026-03-04 14:11:25.269 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:11:29.360 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:11:29.361 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:11:29.361 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:11:29.361 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:11:29.466 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:11:30.828 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:11:38.080 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:11:44.989 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:11:44.990 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:11:44.990 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:11:44.990 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:11:45.091 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:11:46.473 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:11:57.542 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:12:02.161 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:12:02.162 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:12:02.162 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:12:02.162 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:12:02.270 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:12:04.015 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:12:13.958 | INFO     | voice_dialog.core.state_machine:reset:103 - 状态机已重置
+2026-03-04 14:12:13.958 | INFO     | voice_dialog.system:reset:441 - 系统已重置
+2026-03-04 14:12:16.780 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-04 14:12:28.568 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段检测完成)
+2026-03-04 14:12:28.569 | INFO     | voice_dialog.system:_process_speech_segment:148 - 并行处理完成 - ASR: 请帮我查一下今天的天气, 语义状态: complete, 情绪: neutral
+2026-03-04 14:12:28.569 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-04 14:12:28.569 | INFO     | voice_dialog.system:_process_speech_segment:198 - 执行工具调用: ['get_weather']
+2026-03-04 14:12:28.680 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> speaking (开始语音合成)
+2026-03-04 14:12:30.455 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: speaking -> idle (处理完成)
+2026-03-04 14:14:01.704 | ERROR    | voice_dialog.websocket_server:websocket_endpoint:148 - WebSocket错误: Cannot call "receive" once a disconnect message has been received.
+2026-03-04 14:14:01.704 | INFO     | voice_dialog.websocket_server:disconnect:59 - 客户端断开: client_1772604494587
