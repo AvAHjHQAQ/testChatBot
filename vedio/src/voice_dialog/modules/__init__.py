@@ -18,6 +18,7 @@
 5. LLM任务规划（llm_planner.py）
 6. 工具引擎（tools.py）
 7. TTS语音合成（tts.py）
+   - v3.2.2: StreamingTTSProcessor 支持LLM流式输出实时转语音
 """
 from .acoustic_vad import AcousticVAD, StreamingVAD
 from .qwen_asr import QwenASRProcessor, QwenASRStreamIterator
@@ -25,7 +26,7 @@ from .semantic_vad import SemanticVADProcessor, StreamingSemanticVAD
 from .emotion import EmotionRecognizer, ParallelEmotionRecognizer, recognize_emotion_from_text
 from .llm_planner import LLMTaskPlanner
 from .tools import ToolEngine, MCPClient, SKILLSEngine
-from .tts import TTSEngine, StreamingTTS
+from .tts import TTSEngine, StreamingTTS, StreamingTTSProcessor
 # 保留旧模块以兼容
 from .qwen_omni import QwenOmniProcessor, QwenOmniStreamProcessor
 
@@ -55,4 +56,5 @@ __all__ = [
     # TTS
     "TTSEngine",
     "StreamingTTS",
+    "StreamingTTSProcessor",
 ]

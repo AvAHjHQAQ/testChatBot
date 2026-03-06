@@ -83,7 +83,7 @@ class SimpleVAD:
     基于 RMS 音量检测
     """
 
-    def __init__(self, threshold: float = 500):
+    def __init__(self, threshold: float = 700):  # 提高阈值以过滤更多噪声
         self.threshold = threshold
 
     def is_speech(self, frame: bytes, sample_rate: int = 16000) -> bool:
@@ -130,6 +130,10 @@ class AcousticVAD:
         self.sample_rate = 16000
         self.aggressiveness = self.config.get("aggressiveness", 3)
 
+        # 打断检测增强 - 需要连续帧检测
+        self._interrupt_speech_frames = 0  # 连续检测到语音的帧数
+        self._interrupt_threshold_frames = 3  # 需要连续3帧(60ms)才确认打断
+
         # 计算帧大小
         self.frame_size = int(self.sample_rate * self.frame_duration_ms / 1000) * 2  # 16-bit
         self.silence_threshold_frames = self.silence_threshold_ms // self.frame_duration_ms
@@ -142,7 +146,7 @@ class AcousticVAD:
 
         # 初始化 VAD
         self._webrtc_vad = WebRTCVADWrapper(self.aggressiveness)
-        self._simple_vad = SimpleVAD(threshold=500)
+        self._simple_vad = SimpleVAD(threshold=700)  # 提高阈值过滤噪声
 
         if self._webrtc_vad.available:
             logger.info(f"声学VAD 使用 WebRTC VAD (阈值: {self.silence_threshold_ms}ms, 帧长: {self.frame_duration_ms}ms)")
@@ -247,14 +251,25 @@ class AcousticVAD:
         """
         检查是否是打断信号
 
+        v3.2 更新：需要连续检测到多帧语音才确认打断，减少误触发
+
         Returns:
             是否检测到打断
         """
-        # 如果正在播放（SPEAKING状态），检测到语音就是打断
-        if self._detect_speech(audio_frame):
-            logger.info("声学VAD: 检测到打断信号")
-            self._notify_interrupt()
-            return True
+        is_speech = self._detect_speech(audio_frame)
+
+        if is_speech:
+            self._interrupt_speech_frames += 1
+            # 需要连续检测到足够的帧数才确认打断
+            if self._interrupt_speech_frames >= self._interrupt_threshold_frames:
+                logger.info(f"声学VAD: 确认打断信号 (连续{self._interrupt_speech_frames}帧)")
+                self._interrupt_speech_frames = 0  # 重置计数
+                self._notify_interrupt()
+                return True
+        else:
+            # 非语音帧，重置计数
+            self._interrupt_speech_frames = 0
+
         return False
 
     def get_silence_duration(self) -> float:
@@ -274,6 +289,7 @@ class AcousticVAD:
         self._speech_start_time = None
         self._silence_start_time = None
         self._last_silence_duration = 0.0
+        self._interrupt_speech_frames = 0  # 重置打断检测计数
 
     def add_speech_callback(self, callback: Callable):
         """添加语音开始回调"""

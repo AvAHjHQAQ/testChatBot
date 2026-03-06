@@ -448,14 +448,143 @@
                 case 'tool_executing':
                     showToolExecuting(message.data.tool_name, message.data.tool_args);
                     break;
+                case 'llm_chunk':
+                    handleLLMChunk(message.data.text);
+                    break;
+                case 'audio_chunk':
+                    handleAudioChunk(message.data.audio);
+                    break;
+                case 'clear_audio':
+                    // 新问题开始，清空音频队列
+                    stopAudioPlayback();
+                    console.log('[音频流] 已清空音频队列');
+                    break;
                 case 'pong':
                     break;
             }
         }
 
+        // 流式输出状态
+        let streamingMessageId = null;
+        let streamingContent = '';
+
+        // 流式音频播放器 - 使用队列连续播放
+        let audioQueue = [];
+        let isPlayingAudio = false;
+        let currentAudio = null;
+        let audioContextForPlayback = null;
+        let audioBufferQueue = [];
+        let nextPlayTime = 0;
+
+        // 处理TTS音频块（实时播报）
+        function handleAudioChunk(base64Audio) {
+            // 将音频块加入队列
+            audioQueue.push(base64Audio);
+
+            // 如果没有在播放，开始播放
+            if (!isPlayingAudio) {
+                playNextAudioChunk();
+            }
+        }
+
+        // 播放下一个音频块
+        function playNextAudioChunk() {
+            if (audioQueue.length === 0) {
+                isPlayingAudio = false;
+                return;
+            }
+
+            isPlayingAudio = true;
+            const base64Audio = audioQueue.shift();
+
+            // 创建音频元素并播放
+            const audio = new Audio('data:audio/mp3;base64,' + base64Audio);
+            currentAudio = audio;
+
+            // 预加载下一个音频以减少卡顿
+            if (audioQueue.length > 0) {
+                const nextAudio = new Audio('data:audio/mp3;base64,' + audioQueue[0]);
+                nextAudio.load();  // 预加载
+            }
+
+            audio.onended = function() {
+                currentAudio = null;
+                // 小延迟让播放更自然
+                setTimeout(() => playNextAudioChunk(), 50);
+            };
+
+            audio.onerror = function(e) {
+                console.error('音频播放错误:', e);
+                currentAudio = null;
+                playNextAudioChunk();  // 继续播放下一个
+            };
+
+            audio.play().catch(e => {
+                console.error('播放失败:', e);
+                currentAudio = null;
+                playNextAudioChunk();
+            });
+        }
+
+        // 停止音频播放（打断时调用）
+        function stopAudioPlayback() {
+            // 清空队列
+            audioQueue = [];
+
+            // 停止当前播放
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            isPlayingAudio = false;
+        }
+
+        // 处理LLM流式输出块
+        function handleLLMChunk(chunk) {
+            // 如果是第一个块，创建新的消息元素
+            if (!streamingMessageId) {
+                const chatContainer = document.getElementById('chatContainer');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message assistant';
+                messageDiv.id = 'streaming-message';
+                messageDiv.innerHTML = '<div class="message-bubble"></div><div class="message-meta"><span>' + new Date().toLocaleTimeString() + '</span></div>';
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                streamingMessageId = 'streaming-message';
+                streamingContent = '';
+            }
+
+            // 累积内容
+            streamingContent += chunk;
+
+            // 更新显示
+            const messageDiv = document.getElementById(streamingMessageId);
+            if (messageDiv) {
+                const bubble = messageDiv.querySelector('.message-bubble');
+                if (bubble) {
+                    bubble.textContent = streamingContent;
+                }
+                // 滚动到底部
+                const chatContainer = document.getElementById('chatContainer');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            // 更新部分文本区域
+            updatePartialText(`回复中: ${streamingContent}`);
+        }
+
         // 处理对话结果
         function handleResult(data) {
             updatePartialText('');
+
+            // 清除流式消息ID
+            const streamingMsg = document.getElementById('streaming-message');
+            if (streamingMsg) {
+                streamingMsg.remove();
+            }
+            streamingMessageId = null;
+            streamingContent = '';
 
             // 添加用户消息
             if (data.text) {
@@ -470,8 +599,9 @@
                     toolCalls: data.tool_calls
                 });
 
-                // 播放音频
-                if (data.audio) {
+                // 注意：音频通过 audio_chunk 消息实时播放
+                // 这里只作为备用，如果有完整音频数据也播放
+                if (data.audio && audioQueue.length === 0) {
                     playAudio(data.audio);
                 }
             }
@@ -629,7 +759,10 @@
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'interrupt' }));
 
-                // 停止音频播放
+                // 停止流式音频播放
+                stopAudioPlayback();
+
+                // 停止旧的音频播放器
                 const audio = document.getElementById('audioPlayer');
                 if (audio) {
                     audio.pause();
@@ -642,6 +775,9 @@
         function resetDialog() {
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'reset' }));
+
+                // 停止音频播放
+                stopAudioPlayback();
 
                 const chatContainer = document.getElementById('chatContainer');
                 chatContainer.innerHTML = `

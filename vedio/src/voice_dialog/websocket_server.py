@@ -1,17 +1,18 @@
 """
-全双工语音对话系统 v3.0 - WebSocket服务器
+全双工语音对话系统 v3.2 - WebSocket服务器
 支持全双工语音交互
 
-v3.0 特性：
+v3.2 特性：
 - 流式ASR + 流式语义VAD
 - 并行情绪识别
 - 打断支持
 - 实时时延监控
+- LLM流式输出
 """
 import asyncio
 import json
 import base64
-from typing import Dict, Set
+from typing import Dict, Set, Callable
 from .core.logger import logger
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -23,7 +24,7 @@ from .system import VoiceDialogSystem
 from .core import DialogState, DialogResult, latency_tracker
 
 
-app = FastAPI(title="全双工语音对话系统 v3.0")
+app = FastAPI(title="全双工语音对话系统 v3.2")
 
 
 class ConnectionManager:
@@ -56,6 +57,18 @@ class ConnectionManager:
         ))
         system.on_latency_update(lambda data: asyncio.create_task(
             self.send_latency_update(client_id, data)
+        ))
+        # 注册LLM流式输出回调
+        system.on_llm_chunk(lambda chunk: asyncio.create_task(
+            self.send_llm_chunk(client_id, chunk)
+        ))
+        # 注册TTS音频块回调（实时播报）
+        system.on_audio_chunk(lambda audio: asyncio.create_task(
+            self.send_audio_chunk(client_id, audio)
+        ))
+        # 注册清空音频回调（新问题开始时）
+        system.on_clear_audio(lambda: asyncio.create_task(
+            self.send_clear_audio(client_id)
         ))
 
         logger.info(f"客户端连接: {client_id}")
@@ -98,6 +111,27 @@ class ConnectionManager:
             data["data"]["audio"] = base64.b64encode(result.response_audio).decode()
 
         await self.send_json(client_id, data)
+
+    async def send_llm_chunk(self, client_id: str, chunk: str):
+        """发送LLM流式输出块"""
+        await self.send_json(client_id, {
+            "type": "llm_chunk",
+            "data": {"text": chunk}
+        })
+
+    async def send_audio_chunk(self, client_id: str, audio_data: bytes):
+        """发送TTS音频块（实时播报）"""
+        await self.send_json(client_id, {
+            "type": "audio_chunk",
+            "data": {"audio": base64.b64encode(audio_data).decode()}
+        })
+
+    async def send_clear_audio(self, client_id: str):
+        """发送清空音频队列消息"""
+        await self.send_json(client_id, {
+            "type": "clear_audio"
+        })
+        logger.info(f"[音频流] 已通知前端清空音频队列: {client_id}")
 
     async def send_tool_executing(self, client_id: str, tool_name: str, tool_args: dict):
         """发送工具执行状态"""
@@ -184,7 +218,7 @@ async def handle_message(client_id: str, message: dict):
 
     elif msg_type == "interrupt":
         # 打断
-        system.interrupt()
+        await system.interrupt()
 
     elif msg_type == "reset":
         # 重置

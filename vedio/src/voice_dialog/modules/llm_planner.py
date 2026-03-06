@@ -54,10 +54,11 @@ CHINESE_CITIES = [
 
 class LLMTaskPlanner:
     """
-    LLM任务规划器 v3.0
+    LLM任务规划器 v3.2
     支持多轮对话上下文管理和智能工具匹配
     使用统一的工具注册中心 ToolRegistry
     每次对话自动注入当前时间
+    支持流式输出
     """
 
     SYSTEM_PROMPT_TEMPLATE = """你是一个智能语音助手，具备以下能力：
@@ -75,10 +76,11 @@ class LLMTaskPlanner:
 
 重要规则：
 1. 当用户请求需要工具才能完成时，调用相应工具
-2. 当用户询问时间、日期、星期时，调用get_current_time工具
+2. 你已经知道当前时间，不需要再调用get_current_time工具来回答时间问题
 3. 记住用户之前提到的信息，支持上下文对话
 4. 如果用户使用代词（"它"、"那里"等），根据上下文理解指代对象
-5. 回答要简洁友好，适合语音播报"""
+5. 当用户询问天气、空气质量等需要位置的服务时，如果用户没有明确说明地址，请礼貌地询问用户的具体位置
+6. 回答要简洁友好，适合语音播报，不要使用Markdown格式和表情符号"""
 
     # 情绪适配前缀
     EMOTION_PREFIXES = {
@@ -95,6 +97,7 @@ class LLMTaskPlanner:
         self.client: Optional[AsyncOpenAI] = None
         self.conversation_history: List[Message] = []
         self.context: Dict[str, Any] = {}  # 存储对话上下文信息
+        self._current_time: Optional[str] = None  # 缓存当前时间
         self._init_client()
 
     def _init_client(self):
@@ -194,6 +197,142 @@ class LLMTaskPlanner:
         except Exception as e:
             logger.error(f"LLM规划失败: {e}")
             return self._mock_plan(llm_input)
+
+    async def plan_stream(self, llm_input: LLMInput, on_chunk: Callable[[str], None] = None, on_tool_detected: Callable[[str], None] = None):
+        """
+        流式任务规划
+        接收融合后的输入，流式返回响应
+
+        Args:
+            llm_input: 融合后的输入
+            on_chunk: 流式输出回调函数，每次收到文本块时调用
+            on_tool_detected: 工具检测回调函数，检测到工具调用时调用
+
+        Returns:
+            LLMResponse: 最终响应
+        """
+        if self.client is None:
+            # 模拟模式也支持流式
+            response = self._mock_plan(llm_input)
+            # 模拟流式输出
+            words = response.text
+            for i in range(0, len(words), 3):
+                chunk = words[i:i+3]
+                if on_chunk:
+                    on_chunk(chunk)
+                await asyncio.sleep(0.05)
+            # 模拟工具检测
+            if response.tool_calls and on_tool_detected:
+                for tc in response.tool_calls:
+                    on_tool_detected(tc.name)
+            return response
+
+        try:
+            # 获取并缓存当前时间
+            await self._update_current_time()
+
+            # 从 ToolRegistry 获取工具
+            tools = await self._get_tools()
+            tools_description = self._get_tools_description()
+            system_prompt = self.SYSTEM_PROMPT_TEMPLATE.format(
+                tools_description=tools_description,
+                current_time=self._current_time,
+                current_location=self.context.get("location", "上海")
+            )
+
+            # 构建消息
+            messages = self._build_messages(llm_input, system_prompt)
+
+            # 流式调用LLM
+            stream = await self.client.chat.completions.create(
+                model=self.config.get("model", "qwen-plus"),
+                messages=messages,
+                tools=tools if self.config.get("tools", {}).get("enabled", True) else None,
+                temperature=self.config.get("generation", {}).get("temperature", 0.7),
+                max_tokens=self.config.get("generation", {}).get("max_tokens", 1024),
+                stream=True  # 启用流式输出
+            )
+
+            response_text = ""
+            tool_calls_data = []  # 存储工具调用数据
+            detected_tools = set()  # 已检测到的工具名，避免重复回调
+
+            async for chunk in stream:
+                if chunk.choices:
+                    delta = chunk.choices[0].delta
+
+                    # 处理文本内容
+                    if delta.content:
+                        response_text += delta.content
+                        if on_chunk:
+                            on_chunk(delta.content)
+
+                    # 处理工具调用
+                    if delta.tool_calls:
+                        for tc in delta.tool_calls:
+                            # 累积工具调用数据
+                            while len(tool_calls_data) <= tc.index:
+                                tool_calls_data.append({
+                                    "id": "",
+                                    "name": "",
+                                    "arguments": ""
+                                })
+                            if tc.id:
+                                tool_calls_data[tc.index]["id"] = tc.id
+                            if tc.function:
+                                if tc.function.name:
+                                    tool_name = tc.function.name
+                                    tool_calls_data[tc.index]["name"] = tool_name
+
+                                    # 检测到工具名称，立即回调
+                                    if tool_name and tool_name not in detected_tools:
+                                        detected_tools.add(tool_name)
+                                        logger.info(f"检测到工具调用: {tool_name}")
+                                        if on_tool_detected:
+                                            on_tool_detected(tool_name)
+
+                                if tc.function.arguments:
+                                    tool_calls_data[tc.index]["arguments"] += tc.function.arguments
+
+            # 解析工具调用
+            tool_calls = []
+            for tc_data in tool_calls_data:
+                if tc_data["name"]:
+                    try:
+                        arguments = json.loads(tc_data["arguments"]) if tc_data["arguments"] else {}
+                    except json.JSONDecodeError:
+                        arguments = {}
+                    tool_calls.append(ToolCall(
+                        id=tc_data["id"],
+                        name=tc_data["name"],
+                        arguments=arguments
+                    ))
+
+            # 情绪适配（流式模式下不添加前缀，因为已经开始输出了）
+            # 这里我们在最终响应中添加前缀用于TTS
+            final_text = response_text
+            if self.config.get("emotion_context", {}).get("enabled", True):
+                prefix = self.EMOTION_PREFIXES.get(llm_input.emotion, "")
+                if prefix and not response_text.startswith(prefix):
+                    final_text = prefix + response_text
+
+            return LLMResponse(
+                text=final_text,
+                tool_calls=tool_calls,
+                emotion_adapted=True
+            )
+
+        except Exception as e:
+            logger.error(f"LLM流式规划失败: {e}")
+            return self._mock_plan(llm_input)
+
+    async def _update_current_time(self):
+        """更新当前时间（调用时间工具获取准确时间）"""
+        from datetime import datetime
+        now = datetime.now()
+        weekday_names = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+        self._current_time = f"{now.strftime('%Y年%m月%d日')} {weekday_names[now.weekday()]} {now.strftime('%H:%M:%S')}"
+        logger.debug(f"更新当前时间: {self._current_time}")
 
     def _build_messages(self, llm_input: LLMInput, system_prompt: str) -> List[Dict]:
         """构建消息列表"""

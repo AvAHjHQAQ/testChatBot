@@ -11,6 +11,7 @@
 7. 语义完整 → 文本+情绪 → 后端LLM
 8. 打断逻辑：语义VAD判断有效人声 → 立即停止TTS → 继续接收完整句子 → LLM
 9. 支持多轮对话上下文
+10. v3.2.2: LLM流式输出 + TTS实时转换
 """
 import asyncio
 from typing import Optional, Callable, List
@@ -41,6 +42,7 @@ from .modules import (
     ToolEngine,
     TTSEngine,
     StreamingTTS,
+    StreamingTTSProcessor,
 )
 from .modules.semantic_vad import VoiceValidity
 
@@ -95,6 +97,9 @@ class VoiceDialogSystem:
         self._on_state_change_callbacks: List[Callable] = []
         self._on_partial_asr_callbacks: List[Callable] = []
         self._on_tool_executing_callbacks: List[Callable] = []
+        self._on_llm_chunk_callbacks: List[Callable] = []  # LLM流式输出回调
+        self._on_audio_chunk_callbacks: List[Callable] = []  # TTS音频块回调
+        self._on_clear_audio_callbacks: List[Callable] = []  # 清空音频回调
 
         # ========== 流式处理状态 ==========
         self._is_streaming = False
@@ -111,6 +116,7 @@ class VoiceDialogSystem:
         self._interrupt_start_time: Optional[float] = None
         self._tts_stopped_for_interrupt = False  # TTS是否因打断而停止
         self._first_asr_received = False  # 是否已收到首个ASR结果
+        self._streaming_tts: Optional[StreamingTTSProcessor] = None  # 流式TTS处理器
 
         # 添加状态监听
         self.dialog_state.add_listener(self._on_state_change)
@@ -147,7 +153,7 @@ class VoiceDialogSystem:
             if interrupt_result == "valid":
                 # 确认是有效人声，立即停止TTS播报
                 logger.info(f"[打断] 确认有效人声，停止TTS播报，文本: '{self._asr_text_buffer}'")
-                self._stop_tts_for_interrupt()
+                await self._stop_tts_for_interrupt()
 
             elif interrupt_result == "complete":
                 # 语义完整，结束打断确认，进入LLM处理
@@ -179,6 +185,9 @@ class VoiceDialogSystem:
         # 4. 检测到人声开始
         if vad_result["event"] == "speech_active":
             if not self._is_streaming:
+                # ========== 新问题开始，清空旧音频流 ==========
+                await self._clear_audio_stream()
+
                 # 开始新的句子追踪
                 latency_tracker.start_sentence()
                 latency_tracker.mark_end("vad_detect", {"event": "speech_start"})
@@ -298,7 +307,7 @@ class VoiceDialogSystem:
 
         return "pending"
 
-    def _stop_tts_for_interrupt(self):
+    async def _stop_tts_for_interrupt(self):
         """
         停止TTS播报（语义确认有效人声后调用）
         """
@@ -307,14 +316,24 @@ class VoiceDialogSystem:
 
         self._tts_stopped_for_interrupt = True
 
+        # 停止流式TTS处理器
+        if self._streaming_tts:
+            self._streaming_tts.stop()
+            self._streaming_tts = None
+            logger.info("[打断] 流式TTS处理器已停止")
+
         # 停止TTS播放
         self.streaming_tts.stop()
 
         # 取消当前TTS任务
         if self._current_tts_task and not self._current_tts_task.done():
             self._current_tts_task.cancel()
+            self._current_tts_task = None
 
-        logger.info("[打断] TTS播报已停止，继续接收用户输入...")
+        # 通知前端清空音频队列
+        await self._notify_clear_audio()
+
+        logger.info("[打断] TTS播报已停止，音频队列已清空，继续接收用户输入...")
 
     async def _finalize_interrupt_to_llm(self) -> DialogResult:
         """
@@ -322,6 +341,10 @@ class VoiceDialogSystem:
         """
         self._interrupt_confirm_mode = False
         self._is_streaming = False
+        self._tts_stopped_for_interrupt = False  # 重置TTS停止标志
+
+        # ========== 清空旧音频流，准备新问题 ==========
+        await self._clear_audio_stream()
 
         # 重置语义VAD的打断模式
         self.semantic_vad.processor.set_interrupt_mode(False)
@@ -536,7 +559,12 @@ class VoiceDialogSystem:
         emotion_confidence: float,
         emotion_intensity: float
     ) -> DialogResult:
-        """融合阶段：文本+情绪 → LLM处理"""
+        """融合阶段：文本+情绪 → LLM处理（流式显示 + 按句子TTS播报）"""
+
+        # ========== 清空旧音频，准备新问题播报 ==========
+        await self._notify_clear_audio()
+        logger.info(f"[音频流] 新问题开始，已清空旧音频队列")
+
         await self.dialog_state.transition_to(DialogState.THINKING, "开始LLM处理")
 
         llm_input = LLMInput(
@@ -551,34 +579,79 @@ class VoiceDialogSystem:
 
         logger.info(f"融合输入 LLM: 文本='{text}', 情绪={emotion.value}")
 
-        # LLM任务规划
+        # ========== v3.2.3: 流式显示 + 按句子TTS播报 ==========
         latency_tracker.mark_start("llm_process")
-        llm_response = await self.llm_planner.plan(llm_input)
-        latency_tracker.mark_end("llm_process", {"response_preview": llm_response.text[:50] if llm_response.text else ""})
 
-        # 工具调用
+        # 定义音频块回调：按句子发送音频
+        async def on_audio_chunk(audio_data: bytes):
+            """TTS音频块回调 - 每个句子完成后发送"""
+            await self._notify_audio_chunk(audio_data)
+
+        # 创建流式TTS处理器
+        self._streaming_tts = StreamingTTSProcessor(on_audio_chunk=on_audio_chunk)
+
+        # 收集完整响应文本
+        response_text_parts = []
+
+        # 定义LLM文本块回调：发送给前端显示 + TTS处理器
+        def on_llm_chunk(chunk: str):
+            response_text_parts.append(chunk)
+            # 发送给前端显示
+            asyncio.create_task(self._notify_llm_chunk(chunk))
+            # 发送给TTS处理器（按句子转换）
+            if self._streaming_tts and not self._streaming_tts._should_stop:
+                asyncio.create_task(self._streaming_tts.add_text(chunk))
+
+        # 定义工具检测回调
+        def on_tool_detected(tool_name: str):
+            logger.info(f"[工具检测] 发现工具调用: {tool_name}")
+            # 通知前端工具正在执行
+            asyncio.create_task(self._notify_tool_executing(tool_name, {}))
+
+        # 使用流式方法调用LLM
+        llm_response = await self.llm_planner.plan_stream(
+            llm_input,
+            on_chunk=on_llm_chunk,
+            on_tool_detected=on_tool_detected
+        )
+
+        latency_tracker.mark_end("llm_process", {
+            "response_preview": llm_response.text[:50] if llm_response.text else "",
+            "has_tools": len(llm_response.tool_calls) > 0
+        })
+
+        # 刷新TTS缓冲区，获取完整音频
+        full_audio = await self._streaming_tts.finalize()
+        self._streaming_tts = None
+
+        # 工具调用处理
         tool_results = []
         if llm_response.tool_calls:
             latency_tracker.mark_start("tool_execute")
-            for tc in llm_response.tool_calls:
-                await self._notify_tool_executing(tc.name, tc.arguments)
 
             logger.info(f"执行工具调用: {[tc.name for tc in llm_response.tool_calls]}")
             tool_results = await self.tool_engine.execute_batch(llm_response.tool_calls)
             latency_tracker.mark_end("tool_execute", {"tools": [tc.name for tc in llm_response.tool_calls]})
 
+            # 工具执行后的总结
             final_response = await self.llm_planner.summarize_tool_results(
                 llm_response, tool_results
             )
             llm_response.final_response = final_response
+
+            # 对工具总结进行TTS
+            if final_response:
+                await self.dialog_state.transition_to(DialogState.SPEAKING, "语音合成")
+
+                async def on_tool_audio_chunk(audio_data: bytes):
+                    await self._notify_audio_chunk(audio_data)
+
+                tool_tts = StreamingTTSProcessor(on_audio_chunk=on_tool_audio_chunk)
+                await tool_tts.add_text(final_response)
+                tool_audio = await tool_tts.finalize()
+                full_audio = full_audio + tool_audio if full_audio else tool_audio
         else:
             llm_response.final_response = llm_response.text
-
-        # TTS
-        await self.dialog_state.transition_to(DialogState.SPEAKING, "语音合成")
-        latency_tracker.mark_start("tts_synthesize")
-        tts_result = await self.tts_engine.synthesize(llm_response.final_response)
-        latency_tracker.mark_end("tts_synthesize", {"duration_ms": tts_result.duration_ms if hasattr(tts_result, 'duration_ms') else 0})
 
         # 更新对话历史
         self.llm_planner.add_to_history(Message(
@@ -604,7 +677,7 @@ class VoiceDialogSystem:
             emotion=emotion,
             emotion_confidence=emotion_confidence,
             response=llm_response.final_response,
-            response_audio=tts_result.audio_data,
+            response_audio=full_audio,
             is_interrupt=False,
             dialog_state=DialogState.SPEAKING,
             tool_calls=llm_response.tool_calls,
@@ -650,10 +723,10 @@ class VoiceDialogSystem:
 
         return result
 
-    def interrupt(self):
+    async def interrupt(self):
         """手动触发打断"""
-        self._stop_tts_for_interrupt()
-        asyncio.create_task(self.dialog_state.force_state(DialogState.IDLE, "手动打断"))
+        await self._stop_tts_for_interrupt()
+        await self.dialog_state.force_state(DialogState.IDLE, "手动打断")
 
     async def _on_state_change(self, old_state: DialogState, new_state: DialogState):
         """状态变化回调"""
@@ -699,6 +772,28 @@ class VoiceDialogSystem:
             except Exception as e:
                 logger.error(f"工具执行回调错误: {e}")
 
+    async def _notify_llm_chunk(self, chunk: str):
+        """通知LLM流式输出块"""
+        for callback in self._on_llm_chunk_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback(chunk)
+                else:
+                    callback(chunk)
+            except Exception as e:
+                logger.error(f"LLM流式回调错误: {e}")
+
+    async def _notify_audio_chunk(self, audio_data: bytes):
+        """通知TTS音频块（实时播报）"""
+        for callback in self._on_audio_chunk_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback(audio_data)
+                else:
+                    callback(audio_data)
+            except Exception as e:
+                logger.error(f"音频块回调错误: {e}")
+
     def on_result(self, callback: Callable):
         """注册结果回调"""
         self._on_result_callbacks.append(callback)
@@ -714,6 +809,18 @@ class VoiceDialogSystem:
     def on_tool_executing(self, callback: Callable):
         """注册工具执行回调"""
         self._on_tool_executing_callbacks.append(callback)
+
+    def on_llm_chunk(self, callback: Callable):
+        """注册LLM流式输出回调"""
+        self._on_llm_chunk_callbacks.append(callback)
+
+    def on_audio_chunk(self, callback: Callable):
+        """注册TTS音频块回调（用于实时播报）"""
+        self._on_audio_chunk_callbacks.append(callback)
+
+    def on_clear_audio(self, callback: Callable):
+        """注册清空音频回调（新问题开始时调用）"""
+        self._on_clear_audio_callbacks.append(callback)
 
     def on_latency_update(self, callback: Callable):
         """注册时延更新回调"""
@@ -745,6 +852,42 @@ class VoiceDialogSystem:
         self.semantic_vad.processor.set_interrupt_mode(False)
 
         logger.info("系统已重置（对话历史已清空）")
+
+    async def _clear_audio_stream(self):
+        """
+        清空音频流 - 新问题开始时调用
+
+        停止旧的TTS处理，通知前端清空音频队列
+        """
+        # 停止旧的流式TTS处理器
+        if self._streaming_tts:
+            self._streaming_tts.stop()
+            self._streaming_tts = None
+            logger.info("[音频流] 停止旧的TTS处理器")
+
+        # 停止流式TTS播放
+        self.streaming_tts.stop()
+
+        # 取消当前TTS任务
+        if self._current_tts_task and not self._current_tts_task.done():
+            self._current_tts_task.cancel()
+            self._current_tts_task = None
+
+        # 通知前端清空音频队列
+        await self._notify_clear_audio()
+
+        logger.info("[音频流] 已清空，准备处理新问题")
+
+    async def _notify_clear_audio(self):
+        """通知前端清空音频队列"""
+        for callback in self._on_clear_audio_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback()
+                else:
+                    callback()
+            except Exception as e:
+                logger.error(f"清空音频回调错误: {e}")
 
     def clear_context(self):
         """仅清空上下文，保持状态"""

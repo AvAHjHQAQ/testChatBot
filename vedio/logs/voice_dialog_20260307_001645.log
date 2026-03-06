@@ -1,0 +1,907 @@
+2026-03-07 00:16:45.433 | INFO     | voice_dialog.core.logger:<module>:42 - 日志文件: E:\Claude\vedio\logs\voice_dialog_20260307_001645.log
+2026-03-07 00:16:46.720 | INFO     | voice_dialog.websocket_server:run_server:303 - 启动WebSocket服务器: ws://0.0.0.0:8765
+2026-03-07 00:16:51.608 | INFO     | voice_dialog.modules.acoustic_vad:_init_vad:41 - WebRTC VAD C扩展加载成功 (mode=3)
+2026-03-07 00:16:51.609 | INFO     | voice_dialog.modules.acoustic_vad:__init__:152 - 声学VAD 使用 WebRTC VAD (阈值: 400ms, 帧长: 20ms)
+2026-03-07 00:16:51.609 | INFO     | voice_dialog.modules.qwen_asr:_init_client:121 - Qwen ASR 17B 客户端初始化成功 (模型: paraformer-realtime-v2, 帧长: 20ms)
+2026-03-07 00:16:51.610 | INFO     | voice_dialog.modules.semantic_vad:_init_client:143 - 语义VAD 客户端初始化成功 (模型: Qwen3-Omni-Flash)
+2026-03-07 00:16:51.888 | INFO     | voice_dialog.modules.emotion:_init_client:114 - 情绪识别器初始化成功 (模型: Qwen3-Omni-Flash, 并行模式)
+2026-03-07 00:16:52.133 | INFO     | voice_dialog.modules.llm_planner:_init_client:117 - LLM客户端初始化成功
+2026-03-07 00:16:52.134 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: get_current_time (分类: query)
+2026-03-07 00:16:52.135 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: get_weather (分类: query)
+2026-03-07 00:16:52.135 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: search_web (分类: query)
+2026-03-07 00:16:52.135 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: set_reminder (分类: productivity)
+2026-03-07 00:16:52.136 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: play_music (分类: entertainment)
+2026-03-07 00:16:52.136 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: control_device (分类: smart_home)
+2026-03-07 00:16:52.136 | INFO     | voice_dialog.modules.tools:_register_builtin_tools_to_registry:357 - 内置工具已注册到 ToolRegistry
+2026-03-07 00:16:52.137 | INFO     | voice_dialog.system:__init__:128 - 语音对话系统v3.2初始化完成 - 流式架构 + 语义打断
+2026-03-07 00:16:52.138 | INFO     | voice_dialog.websocket_server:connect:74 - 客户端连接: client_1772812342543
+2026-03-07 00:16:55.551 | INFO     | voice_dialog.modules.acoustic_vad:_init_vad:41 - WebRTC VAD C扩展加载成功 (mode=3)
+2026-03-07 00:16:55.551 | INFO     | voice_dialog.modules.acoustic_vad:__init__:152 - 声学VAD 使用 WebRTC VAD (阈值: 400ms, 帧长: 20ms)
+2026-03-07 00:16:55.552 | INFO     | voice_dialog.modules.qwen_asr:_init_client:121 - Qwen ASR 17B 客户端初始化成功 (模型: paraformer-realtime-v2, 帧长: 20ms)
+2026-03-07 00:16:55.552 | INFO     | voice_dialog.modules.semantic_vad:_init_client:143 - 语义VAD 客户端初始化成功 (模型: Qwen3-Omni-Flash)
+2026-03-07 00:16:55.778 | INFO     | voice_dialog.modules.emotion:_init_client:114 - 情绪识别器初始化成功 (模型: Qwen3-Omni-Flash, 并行模式)
+2026-03-07 00:16:56.002 | INFO     | voice_dialog.modules.llm_planner:_init_client:117 - LLM客户端初始化成功
+2026-03-07 00:16:56.002 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: get_current_time (分类: query)
+2026-03-07 00:16:56.005 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: get_weather (分类: query)
+2026-03-07 00:16:56.005 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: search_web (分类: query)
+2026-03-07 00:16:56.006 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: set_reminder (分类: productivity)
+2026-03-07 00:16:56.006 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: play_music (分类: entertainment)
+2026-03-07 00:16:56.007 | INFO     | voice_dialog.core.tool_registry:register_tool:118 - 注册工具: control_device (分类: smart_home)
+2026-03-07 00:16:56.007 | INFO     | voice_dialog.modules.tools:_register_builtin_tools_to_registry:357 - 内置工具已注册到 ToolRegistry
+2026-03-07 00:16:56.008 | INFO     | voice_dialog.system:__init__:128 - 语音对话系统v3.2初始化完成 - 流式架构 + 语义打断
+2026-03-07 00:16:56.008 | INFO     | voice_dialog.websocket_server:connect:74 - 客户端连接: client_1772813815217
+2026-03-07 00:16:58.970 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:179 - 声学VAD: 检测到语音开始
+2026-03-07 00:16:58.971 | INFO     | voice_dialog.system:_clear_audio_stream:879 - [音频流] 已清空，准备处理新问题
+2026-03-07 00:16:58.972 | INFO     | voice_dialog.system:_start_streaming:411 - 启动流式处理 (打断模式: False)
+2026-03-07 00:16:58.972 | DEBUG    | voice_dialog.modules.qwen_asr:on_open:46 - ASR 流式连接已打开
+2026-03-07 00:16:58.973 | INFO     | voice_dialog.modules.qwen_asr:start_stream:158 - ASR 流式会话已启动
+2026-03-07 00:16:58.973 | DEBUG    | voice_dialog.modules.semantic_vad:reset:508 - 语义VAD 状态已重置
+2026-03-07 00:16:58.974 | DEBUG    | voice_dialog.modules.semantic_vad:set_interrupt_mode:276 - 语义VAD 退出打断模式
+2026-03-07 00:16:58.974 | INFO     | voice_dialog.modules.semantic_vad:start:539 - 流式语义VAD 已启动 (打断模式: False)
+2026-03-07 00:16:58.974 | DEBUG    | voice_dialog.modules.emotion:reset_sentence:331 - 情绪识别器句子状态已重置
+2026-03-07 00:16:58.975 | INFO     | voice_dialog.modules.emotion:reset:338 - 情绪识别器已完全重置
+2026-03-07 00:16:58.975 | INFO     | voice_dialog.modules.emotion:start:374 - 并行情绪识别器已启动
+2026-03-07 00:16:58.975 | INFO     | voice_dialog.system:_start_streaming:426 - 流式处理已启动
+2026-03-07 00:16:58.975 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-07 00:16:58.976 | INFO     | voice_dialog.system:process_audio:204 - 语音段开始 (时间: 1772813818971ms)
+2026-03-07 00:16:58.976 | INFO     | voice_dialog.websocket_server:send_clear_audio:134 - [音频流] 已通知前端清空音频队列: client_1772813815217
+2026-03-07 00:17:00.766 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 你好
+2026-03-07 00:17:01.365 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 你好，帮
+2026-03-07 00:17:01.780 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 172ms)，等待语义VAD判断
+2026-03-07 00:17:01.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 173ms)，等待语义VAD判断
+2026-03-07 00:17:01.782 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 174ms)，等待语义VAD判断
+2026-03-07 00:17:01.782 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 174ms)，等待语义VAD判断
+2026-03-07 00:17:01.790 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 你好，帮我介绍一下
+2026-03-07 00:17:02.040 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 432ms)，等待语义VAD判断
+2026-03-07 00:17:02.041 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 433ms)，等待语义VAD判断
+2026-03-07 00:17:02.041 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 434ms)，等待语义VAD判断
+2026-03-07 00:17:02.042 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 434ms)，等待语义VAD判断
+2026-03-07 00:17:02.042 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 434ms)，等待语义VAD判断
+2026-03-07 00:17:02.042 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 434ms)，等待语义VAD判断
+2026-03-07 00:17:02.043 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 435ms)，等待语义VAD判断
+2026-03-07 00:17:02.043 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 435ms)，等待语义VAD判断
+2026-03-07 00:17:02.043 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 435ms)，等待语义VAD判断
+2026-03-07 00:17:02.043 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 435ms)，等待语义VAD判断
+2026-03-07 00:17:02.043 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 436ms)，等待语义VAD判断
+2026-03-07 00:17:02.044 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 436ms)，等待语义VAD判断
+2026-03-07 00:17:02.044 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 436ms)，等待语义VAD判断
+2026-03-07 00:17:02.044 | INFO     | voice_dialog.system:process_audio:238 - 结束语音段: 静音+文本充足, 文本: '你好，帮我介绍一下'
+2026-03-07 00:17:02.044 | DEBUG    | voice_dialog.modules.semantic_vad:set_interrupt_mode:276 - 语义VAD 退出打断模式
+2026-03-07 00:17:02.045 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段结束)
+2026-03-07 00:17:02.214 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 你好，帮我介绍一下南
+2026-03-07 00:17:02.357 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 你好，帮我介绍一下南京。
+2026-03-07 00:17:02.391 | DEBUG    | voice_dialog.modules.qwen_asr:on_close:50 - ASR 流式连接已关闭
+2026-03-07 00:17:02.391 | INFO     | voice_dialog.modules.qwen_asr:stop_stream:221 - ASR 流式会话结束，最终结果: '你好，帮我介绍一下南京。'
+2026-03-07 00:17:02.392 | INFO     | voice_dialog.system:_finalize_streaming:495 - ASR最终结果: '你好，帮我介绍一下南京。'
+2026-03-07 00:17:02.395 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:02.395 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:03.671 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: complete (置信度: 0.98)
+2026-03-07 00:17:03.672 | INFO     | voice_dialog.system:_on_asr_result:470 - 语义完整: '你好'
+2026-03-07 00:17:03.892 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.98)
+2026-03-07 00:17:04.293 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.98)
+2026-03-07 00:17:04.968 | INFO     | voice_dialog.modules.emotion:finalize_sentence:170 - 句子情绪识别完成: neutral (置信度: 0.92)
+2026-03-07 00:17:04.969 | DEBUG    | voice_dialog.modules.emotion:reset_sentence:331 - 情绪识别器句子状态已重置
+2026-03-07 00:17:04.969 | INFO     | voice_dialog.system:_finalize_streaming:513 - 处理结果: 文本='你好，帮我介绍一下南京。', 语义=complete, 情绪=neutral
+2026-03-07 00:17:04.970 | INFO     | voice_dialog.system:_process_with_llm:566 - [音频流] 新问题开始，已清空旧音频队列
+2026-03-07 00:17:04.970 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-07 00:17:04.971 | INFO     | voice_dialog.system:_process_with_llm:580 - 融合输入 LLM: 文本='你好，帮我介绍一下南京。', 情绪=neutral
+2026-03-07 00:17:04.972 | DEBUG    | voice_dialog.modules.tts:__init__:295 - StreamingTTSProcessor 初始化完成
+2026-03-07 00:17:04.972 | DEBUG    | voice_dialog.modules.llm_planner:_update_current_time:335 - 更新当前时间: 2026年03月07日 星期六 00:17:04
+2026-03-07 00:17:04.974 | INFO     | voice_dialog.websocket_server:send_clear_audio:134 - [音频流] 已通知前端清空音频队列: client_1772813815217
+2026-03-07 00:17:07.186 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '你好！...' -> 6912 bytes
+2026-03-07 00:17:09.330 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '南京是江苏省的省会，也是一座有着近250...' -> 96624 bytes
+2026-03-07 00:17:09.343 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '太平天国和中华民国都曾在此建都。...' -> 24048 bytes
+2026-03-07 00:17:09.758 | INFO     | voice_dialog.modules.tts:finalize:497 - StreamingTTSProcessor 完成: 总文本 267 字符, 音频 127584 bytes
+2026-03-07 00:17:09.758 | INFO     | voice_dialog.system:_process_with_llm:667 - 对话完成 - 用户: '你好，帮我介绍一下南京。' -> 助手: '你好！南京是江苏省的省会，也是一座有着近2500年建城史的历史文化名城，素有“六朝古都”“十朝都会”...'
+2026-03-07 00:17:09.759 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> idle (处理完成)
+2026-03-07 00:17:09.760 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8152ms)，等待语义VAD判断
+2026-03-07 00:17:09.760 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8152ms)，等待语义VAD判断
+2026-03-07 00:17:09.760 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8152ms)，等待语义VAD判断
+2026-03-07 00:17:09.760 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8152ms)，等待语义VAD判断
+2026-03-07 00:17:09.761 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8153ms)，等待语义VAD判断
+2026-03-07 00:17:09.761 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8153ms)，等待语义VAD判断
+2026-03-07 00:17:09.761 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8153ms)，等待语义VAD判断
+2026-03-07 00:17:09.761 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8153ms)，等待语义VAD判断
+2026-03-07 00:17:09.762 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8154ms)，等待语义VAD判断
+2026-03-07 00:17:09.762 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8154ms)，等待语义VAD判断
+2026-03-07 00:17:09.762 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8154ms)，等待语义VAD判断
+2026-03-07 00:17:09.762 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8154ms)，等待语义VAD判断
+2026-03-07 00:17:09.763 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8155ms)，等待语义VAD判断
+2026-03-07 00:17:09.763 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8155ms)，等待语义VAD判断
+2026-03-07 00:17:09.763 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8155ms)，等待语义VAD判断
+2026-03-07 00:17:09.763 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8155ms)，等待语义VAD判断
+2026-03-07 00:17:09.764 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8156ms)，等待语义VAD判断
+2026-03-07 00:17:09.764 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8156ms)，等待语义VAD判断
+2026-03-07 00:17:09.764 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8156ms)，等待语义VAD判断
+2026-03-07 00:17:09.764 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8156ms)，等待语义VAD判断
+2026-03-07 00:17:09.764 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8156ms)，等待语义VAD判断
+2026-03-07 00:17:09.765 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8157ms)，等待语义VAD判断
+2026-03-07 00:17:09.765 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8157ms)，等待语义VAD判断
+2026-03-07 00:17:09.765 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8157ms)，等待语义VAD判断
+2026-03-07 00:17:09.765 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8157ms)，等待语义VAD判断
+2026-03-07 00:17:09.766 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8158ms)，等待语义VAD判断
+2026-03-07 00:17:09.766 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8158ms)，等待语义VAD判断
+2026-03-07 00:17:09.766 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8158ms)，等待语义VAD判断
+2026-03-07 00:17:09.766 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8158ms)，等待语义VAD判断
+2026-03-07 00:17:09.766 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8159ms)，等待语义VAD判断
+2026-03-07 00:17:09.767 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8159ms)，等待语义VAD判断
+2026-03-07 00:17:09.767 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8159ms)，等待语义VAD判断
+2026-03-07 00:17:09.767 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8159ms)，等待语义VAD判断
+2026-03-07 00:17:09.767 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8159ms)，等待语义VAD判断
+2026-03-07 00:17:09.768 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8160ms)，等待语义VAD判断
+2026-03-07 00:17:09.768 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8160ms)，等待语义VAD判断
+2026-03-07 00:17:09.768 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8160ms)，等待语义VAD判断
+2026-03-07 00:17:09.769 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8161ms)，等待语义VAD判断
+2026-03-07 00:17:09.770 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8162ms)，等待语义VAD判断
+2026-03-07 00:17:09.770 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8162ms)，等待语义VAD判断
+2026-03-07 00:17:09.771 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8163ms)，等待语义VAD判断
+2026-03-07 00:17:09.771 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8163ms)，等待语义VAD判断
+2026-03-07 00:17:09.771 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8163ms)，等待语义VAD判断
+2026-03-07 00:17:09.772 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8164ms)，等待语义VAD判断
+2026-03-07 00:17:09.772 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8164ms)，等待语义VAD判断
+2026-03-07 00:17:09.772 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8164ms)，等待语义VAD判断
+2026-03-07 00:17:09.772 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8164ms)，等待语义VAD判断
+2026-03-07 00:17:09.772 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8165ms)，等待语义VAD判断
+2026-03-07 00:17:09.773 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8165ms)，等待语义VAD判断
+2026-03-07 00:17:09.773 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8165ms)，等待语义VAD判断
+2026-03-07 00:17:09.773 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8165ms)，等待语义VAD判断
+2026-03-07 00:17:09.773 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8165ms)，等待语义VAD判断
+2026-03-07 00:17:09.774 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8166ms)，等待语义VAD判断
+2026-03-07 00:17:09.774 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8166ms)，等待语义VAD判断
+2026-03-07 00:17:09.774 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8166ms)，等待语义VAD判断
+2026-03-07 00:17:09.777 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8169ms)，等待语义VAD判断
+2026-03-07 00:17:09.777 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8169ms)，等待语义VAD判断
+2026-03-07 00:17:09.777 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8169ms)，等待语义VAD判断
+2026-03-07 00:17:09.777 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8169ms)，等待语义VAD判断
+2026-03-07 00:17:09.778 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8170ms)，等待语义VAD判断
+2026-03-07 00:17:09.778 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8170ms)，等待语义VAD判断
+2026-03-07 00:17:09.778 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8170ms)，等待语义VAD判断
+2026-03-07 00:17:09.778 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8170ms)，等待语义VAD判断
+2026-03-07 00:17:09.778 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8171ms)，等待语义VAD判断
+2026-03-07 00:17:09.779 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8171ms)，等待语义VAD判断
+2026-03-07 00:17:09.779 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8171ms)，等待语义VAD判断
+2026-03-07 00:17:09.779 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8171ms)，等待语义VAD判断
+2026-03-07 00:17:09.779 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8171ms)，等待语义VAD判断
+2026-03-07 00:17:09.780 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8172ms)，等待语义VAD判断
+2026-03-07 00:17:09.780 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8172ms)，等待语义VAD判断
+2026-03-07 00:17:09.780 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8172ms)，等待语义VAD判断
+2026-03-07 00:17:09.780 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8172ms)，等待语义VAD判断
+2026-03-07 00:17:09.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8173ms)，等待语义VAD判断
+2026-03-07 00:17:09.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8173ms)，等待语义VAD判断
+2026-03-07 00:17:09.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8173ms)，等待语义VAD判断
+2026-03-07 00:17:09.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8173ms)，等待语义VAD判断
+2026-03-07 00:17:09.781 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8174ms)，等待语义VAD判断
+2026-03-07 00:17:09.782 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8174ms)，等待语义VAD判断
+2026-03-07 00:17:09.782 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8174ms)，等待语义VAD判断
+2026-03-07 00:17:09.782 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8174ms)，等待语义VAD判断
+2026-03-07 00:17:09.783 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8175ms)，等待语义VAD判断
+2026-03-07 00:17:09.783 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8175ms)，等待语义VAD判断
+2026-03-07 00:17:09.784 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8176ms)，等待语义VAD判断
+2026-03-07 00:17:09.784 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8176ms)，等待语义VAD判断
+2026-03-07 00:17:09.784 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8176ms)，等待语义VAD判断
+2026-03-07 00:17:09.785 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8177ms)，等待语义VAD判断
+2026-03-07 00:17:09.785 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8177ms)，等待语义VAD判断
+2026-03-07 00:17:09.785 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8177ms)，等待语义VAD判断
+2026-03-07 00:17:09.785 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8177ms)，等待语义VAD判断
+2026-03-07 00:17:09.786 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8178ms)，等待语义VAD判断
+2026-03-07 00:17:09.786 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8178ms)，等待语义VAD判断
+2026-03-07 00:17:09.786 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8178ms)，等待语义VAD判断
+2026-03-07 00:17:09.786 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8179ms)，等待语义VAD判断
+2026-03-07 00:17:09.787 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8179ms)，等待语义VAD判断
+2026-03-07 00:17:09.787 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8179ms)，等待语义VAD判断
+2026-03-07 00:17:09.787 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8179ms)，等待语义VAD判断
+2026-03-07 00:17:09.787 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8180ms)，等待语义VAD判断
+2026-03-07 00:17:09.788 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8180ms)，等待语义VAD判断
+2026-03-07 00:17:09.788 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8180ms)，等待语义VAD判断
+2026-03-07 00:17:09.788 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8180ms)，等待语义VAD判断
+2026-03-07 00:17:09.789 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8181ms)，等待语义VAD判断
+2026-03-07 00:17:09.789 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8181ms)，等待语义VAD判断
+2026-03-07 00:17:09.789 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8181ms)，等待语义VAD判断
+2026-03-07 00:17:09.790 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8182ms)，等待语义VAD判断
+2026-03-07 00:17:09.790 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8182ms)，等待语义VAD判断
+2026-03-07 00:17:09.790 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8182ms)，等待语义VAD判断
+2026-03-07 00:17:09.790 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8182ms)，等待语义VAD判断
+2026-03-07 00:17:09.790 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8182ms)，等待语义VAD判断
+2026-03-07 00:17:09.791 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8183ms)，等待语义VAD判断
+2026-03-07 00:17:09.791 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8183ms)，等待语义VAD判断
+2026-03-07 00:17:09.791 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8183ms)，等待语义VAD判断
+2026-03-07 00:17:09.791 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8183ms)，等待语义VAD判断
+2026-03-07 00:17:09.792 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8184ms)，等待语义VAD判断
+2026-03-07 00:17:09.792 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8184ms)，等待语义VAD判断
+2026-03-07 00:17:09.792 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8184ms)，等待语义VAD判断
+2026-03-07 00:17:09.792 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8184ms)，等待语义VAD判断
+2026-03-07 00:17:09.792 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8184ms)，等待语义VAD判断
+2026-03-07 00:17:09.793 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8185ms)，等待语义VAD判断
+2026-03-07 00:17:09.793 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8185ms)，等待语义VAD判断
+2026-03-07 00:17:09.793 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8185ms)，等待语义VAD判断
+2026-03-07 00:17:09.793 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8185ms)，等待语义VAD判断
+2026-03-07 00:17:09.794 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8186ms)，等待语义VAD判断
+2026-03-07 00:17:09.794 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8186ms)，等待语义VAD判断
+2026-03-07 00:17:09.794 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8186ms)，等待语义VAD判断
+2026-03-07 00:17:09.794 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8186ms)，等待语义VAD判断
+2026-03-07 00:17:09.794 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8186ms)，等待语义VAD判断
+2026-03-07 00:17:09.795 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8187ms)，等待语义VAD判断
+2026-03-07 00:17:09.795 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8187ms)，等待语义VAD判断
+2026-03-07 00:17:09.795 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8187ms)，等待语义VAD判断
+2026-03-07 00:17:09.795 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8187ms)，等待语义VAD判断
+2026-03-07 00:17:09.796 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8188ms)，等待语义VAD判断
+2026-03-07 00:17:09.796 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8188ms)，等待语义VAD判断
+2026-03-07 00:17:09.796 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8188ms)，等待语义VAD判断
+2026-03-07 00:17:09.797 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8189ms)，等待语义VAD判断
+2026-03-07 00:17:09.797 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8189ms)，等待语义VAD判断
+2026-03-07 00:17:09.797 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8189ms)，等待语义VAD判断
+2026-03-07 00:17:09.798 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8190ms)，等待语义VAD判断
+2026-03-07 00:17:09.798 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8190ms)，等待语义VAD判断
+2026-03-07 00:17:09.798 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8190ms)，等待语义VAD判断
+2026-03-07 00:17:09.798 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8190ms)，等待语义VAD判断
+2026-03-07 00:17:09.799 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8191ms)，等待语义VAD判断
+2026-03-07 00:17:09.799 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8191ms)，等待语义VAD判断
+2026-03-07 00:17:09.802 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8194ms)，等待语义VAD判断
+2026-03-07 00:17:09.802 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8194ms)，等待语义VAD判断
+2026-03-07 00:17:09.802 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8194ms)，等待语义VAD判断
+2026-03-07 00:17:09.802 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8194ms)，等待语义VAD判断
+2026-03-07 00:17:09.802 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8195ms)，等待语义VAD判断
+2026-03-07 00:17:09.803 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8195ms)，等待语义VAD判断
+2026-03-07 00:17:09.803 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8195ms)，等待语义VAD判断
+2026-03-07 00:17:09.804 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8196ms)，等待语义VAD判断
+2026-03-07 00:17:09.804 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8196ms)，等待语义VAD判断
+2026-03-07 00:17:09.804 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8196ms)，等待语义VAD判断
+2026-03-07 00:17:09.804 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8196ms)，等待语义VAD判断
+2026-03-07 00:17:09.805 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8197ms)，等待语义VAD判断
+2026-03-07 00:17:09.805 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8197ms)，等待语义VAD判断
+2026-03-07 00:17:09.805 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8197ms)，等待语义VAD判断
+2026-03-07 00:17:09.805 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8197ms)，等待语义VAD判断
+2026-03-07 00:17:09.805 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8197ms)，等待语义VAD判断
+2026-03-07 00:17:09.806 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8198ms)，等待语义VAD判断
+2026-03-07 00:17:09.806 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8198ms)，等待语义VAD判断
+2026-03-07 00:17:09.806 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8198ms)，等待语义VAD判断
+2026-03-07 00:17:09.806 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8198ms)，等待语义VAD判断
+2026-03-07 00:17:09.807 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8199ms)，等待语义VAD判断
+2026-03-07 00:17:09.807 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8199ms)，等待语义VAD判断
+2026-03-07 00:17:09.807 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8199ms)，等待语义VAD判断
+2026-03-07 00:17:09.807 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8199ms)，等待语义VAD判断
+2026-03-07 00:17:09.807 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8199ms)，等待语义VAD判断
+2026-03-07 00:17:09.808 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8200ms)，等待语义VAD判断
+2026-03-07 00:17:09.808 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8200ms)，等待语义VAD判断
+2026-03-07 00:17:09.808 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8200ms)，等待语义VAD判断
+2026-03-07 00:17:09.808 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8200ms)，等待语义VAD判断
+2026-03-07 00:17:09.809 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8201ms)，等待语义VAD判断
+2026-03-07 00:17:09.809 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8201ms)，等待语义VAD判断
+2026-03-07 00:17:09.809 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8201ms)，等待语义VAD判断
+2026-03-07 00:17:09.809 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8201ms)，等待语义VAD判断
+2026-03-07 00:17:09.809 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8202ms)，等待语义VAD判断
+2026-03-07 00:17:09.810 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8202ms)，等待语义VAD判断
+2026-03-07 00:17:09.810 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8202ms)，等待语义VAD判断
+2026-03-07 00:17:09.810 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8203ms)，等待语义VAD判断
+2026-03-07 00:17:09.811 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8203ms)，等待语义VAD判断
+2026-03-07 00:17:09.811 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8203ms)，等待语义VAD判断
+2026-03-07 00:17:09.814 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8206ms)，等待语义VAD判断
+2026-03-07 00:17:09.814 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8206ms)，等待语义VAD判断
+2026-03-07 00:17:09.814 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8206ms)，等待语义VAD判断
+2026-03-07 00:17:09.815 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8207ms)，等待语义VAD判断
+2026-03-07 00:17:09.815 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8207ms)，等待语义VAD判断
+2026-03-07 00:17:09.815 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8207ms)，等待语义VAD判断
+2026-03-07 00:17:09.815 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8207ms)，等待语义VAD判断
+2026-03-07 00:17:09.816 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8208ms)，等待语义VAD判断
+2026-03-07 00:17:09.816 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8208ms)，等待语义VAD判断
+2026-03-07 00:17:09.816 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8208ms)，等待语义VAD判断
+2026-03-07 00:17:09.816 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8209ms)，等待语义VAD判断
+2026-03-07 00:17:09.817 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8209ms)，等待语义VAD判断
+2026-03-07 00:17:09.817 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8209ms)，等待语义VAD判断
+2026-03-07 00:17:09.817 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8209ms)，等待语义VAD判断
+2026-03-07 00:17:09.818 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8210ms)，等待语义VAD判断
+2026-03-07 00:17:09.818 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8210ms)，等待语义VAD判断
+2026-03-07 00:17:09.818 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8210ms)，等待语义VAD判断
+2026-03-07 00:17:09.819 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8211ms)，等待语义VAD判断
+2026-03-07 00:17:09.819 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8211ms)，等待语义VAD判断
+2026-03-07 00:17:09.819 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8211ms)，等待语义VAD判断
+2026-03-07 00:17:09.819 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8211ms)，等待语义VAD判断
+2026-03-07 00:17:09.820 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8212ms)，等待语义VAD判断
+2026-03-07 00:17:09.820 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8212ms)，等待语义VAD判断
+2026-03-07 00:17:09.820 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8212ms)，等待语义VAD判断
+2026-03-07 00:17:09.820 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8212ms)，等待语义VAD判断
+2026-03-07 00:17:09.821 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8213ms)，等待语义VAD判断
+2026-03-07 00:17:09.821 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8213ms)，等待语义VAD判断
+2026-03-07 00:17:09.821 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8213ms)，等待语义VAD判断
+2026-03-07 00:17:09.821 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8213ms)，等待语义VAD判断
+2026-03-07 00:17:09.821 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8213ms)，等待语义VAD判断
+2026-03-07 00:17:09.822 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8214ms)，等待语义VAD判断
+2026-03-07 00:17:09.822 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8214ms)，等待语义VAD判断
+2026-03-07 00:17:09.822 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8214ms)，等待语义VAD判断
+2026-03-07 00:17:09.822 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8214ms)，等待语义VAD判断
+2026-03-07 00:17:09.823 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8215ms)，等待语义VAD判断
+2026-03-07 00:17:09.823 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8215ms)，等待语义VAD判断
+2026-03-07 00:17:09.823 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8215ms)，等待语义VAD判断
+2026-03-07 00:17:09.823 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8216ms)，等待语义VAD判断
+2026-03-07 00:17:09.824 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8216ms)，等待语义VAD判断
+2026-03-07 00:17:09.824 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8216ms)，等待语义VAD判断
+2026-03-07 00:17:09.825 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8217ms)，等待语义VAD判断
+2026-03-07 00:17:09.827 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8219ms)，等待语义VAD判断
+2026-03-07 00:17:09.828 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8220ms)，等待语义VAD判断
+2026-03-07 00:17:09.828 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8220ms)，等待语义VAD判断
+2026-03-07 00:17:09.828 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8220ms)，等待语义VAD判断
+2026-03-07 00:17:09.828 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8220ms)，等待语义VAD判断
+2026-03-07 00:17:09.829 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8221ms)，等待语义VAD判断
+2026-03-07 00:17:09.829 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8221ms)，等待语义VAD判断
+2026-03-07 00:17:09.829 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8221ms)，等待语义VAD判断
+2026-03-07 00:17:09.829 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8221ms)，等待语义VAD判断
+2026-03-07 00:17:09.830 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8222ms)，等待语义VAD判断
+2026-03-07 00:17:09.830 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8222ms)，等待语义VAD判断
+2026-03-07 00:17:09.830 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8222ms)，等待语义VAD判断
+2026-03-07 00:17:09.831 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8223ms)，等待语义VAD判断
+2026-03-07 00:17:09.831 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8223ms)，等待语义VAD判断
+2026-03-07 00:17:09.831 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8223ms)，等待语义VAD判断
+2026-03-07 00:17:09.832 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8224ms)，等待语义VAD判断
+2026-03-07 00:17:09.832 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8224ms)，等待语义VAD判断
+2026-03-07 00:17:09.832 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8224ms)，等待语义VAD判断
+2026-03-07 00:17:09.833 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8225ms)，等待语义VAD判断
+2026-03-07 00:17:09.833 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8225ms)，等待语义VAD判断
+2026-03-07 00:17:09.833 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8225ms)，等待语义VAD判断
+2026-03-07 00:17:09.833 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8225ms)，等待语义VAD判断
+2026-03-07 00:17:09.834 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8226ms)，等待语义VAD判断
+2026-03-07 00:17:09.834 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8226ms)，等待语义VAD判断
+2026-03-07 00:17:09.834 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8226ms)，等待语义VAD判断
+2026-03-07 00:17:09.834 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8226ms)，等待语义VAD判断
+2026-03-07 00:17:09.834 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8227ms)，等待语义VAD判断
+2026-03-07 00:17:09.835 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8227ms)，等待语义VAD判断
+2026-03-07 00:17:09.835 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8227ms)，等待语义VAD判断
+2026-03-07 00:17:09.835 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8227ms)，等待语义VAD判断
+2026-03-07 00:17:09.835 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8227ms)，等待语义VAD判断
+2026-03-07 00:17:09.836 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8228ms)，等待语义VAD判断
+2026-03-07 00:17:09.836 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8228ms)，等待语义VAD判断
+2026-03-07 00:17:09.836 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8228ms)，等待语义VAD判断
+2026-03-07 00:17:09.836 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8228ms)，等待语义VAD判断
+2026-03-07 00:17:09.837 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8229ms)，等待语义VAD判断
+2026-03-07 00:17:09.837 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8229ms)，等待语义VAD判断
+2026-03-07 00:17:09.837 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8229ms)，等待语义VAD判断
+2026-03-07 00:17:09.837 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8230ms)，等待语义VAD判断
+2026-03-07 00:17:09.838 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8230ms)，等待语义VAD判断
+2026-03-07 00:17:09.838 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8230ms)，等待语义VAD判断
+2026-03-07 00:17:09.839 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8231ms)，等待语义VAD判断
+2026-03-07 00:17:09.839 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8231ms)，等待语义VAD判断
+2026-03-07 00:17:09.839 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8231ms)，等待语义VAD判断
+2026-03-07 00:17:09.840 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8232ms)，等待语义VAD判断
+2026-03-07 00:17:09.840 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8232ms)，等待语义VAD判断
+2026-03-07 00:17:09.840 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8232ms)，等待语义VAD判断
+2026-03-07 00:17:09.840 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8232ms)，等待语义VAD判断
+2026-03-07 00:17:09.841 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8233ms)，等待语义VAD判断
+2026-03-07 00:17:09.843 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8235ms)，等待语义VAD判断
+2026-03-07 00:17:09.843 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8235ms)，等待语义VAD判断
+2026-03-07 00:17:09.843 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8235ms)，等待语义VAD判断
+2026-03-07 00:17:09.844 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8236ms)，等待语义VAD判断
+2026-03-07 00:17:09.844 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8236ms)，等待语义VAD判断
+2026-03-07 00:17:09.845 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8237ms)，等待语义VAD判断
+2026-03-07 00:17:09.845 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8237ms)，等待语义VAD判断
+2026-03-07 00:17:09.845 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8237ms)，等待语义VAD判断
+2026-03-07 00:17:09.846 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8238ms)，等待语义VAD判断
+2026-03-07 00:17:09.846 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8238ms)，等待语义VAD判断
+2026-03-07 00:17:09.846 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8238ms)，等待语义VAD判断
+2026-03-07 00:17:09.847 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8239ms)，等待语义VAD判断
+2026-03-07 00:17:09.847 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8239ms)，等待语义VAD判断
+2026-03-07 00:17:09.847 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8239ms)，等待语义VAD判断
+2026-03-07 00:17:09.847 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8239ms)，等待语义VAD判断
+2026-03-07 00:17:09.847 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8239ms)，等待语义VAD判断
+2026-03-07 00:17:09.848 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8240ms)，等待语义VAD判断
+2026-03-07 00:17:09.848 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8240ms)，等待语义VAD判断
+2026-03-07 00:17:09.848 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8240ms)，等待语义VAD判断
+2026-03-07 00:17:09.848 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8240ms)，等待语义VAD判断
+2026-03-07 00:17:09.849 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8241ms)，等待语义VAD判断
+2026-03-07 00:17:09.849 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8241ms)，等待语义VAD判断
+2026-03-07 00:17:09.849 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8241ms)，等待语义VAD判断
+2026-03-07 00:17:09.849 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8241ms)，等待语义VAD判断
+2026-03-07 00:17:09.850 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8242ms)，等待语义VAD判断
+2026-03-07 00:17:09.850 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8242ms)，等待语义VAD判断
+2026-03-07 00:17:09.850 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8242ms)，等待语义VAD判断
+2026-03-07 00:17:09.850 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8242ms)，等待语义VAD判断
+2026-03-07 00:17:09.850 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8242ms)，等待语义VAD判断
+2026-03-07 00:17:09.851 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8243ms)，等待语义VAD判断
+2026-03-07 00:17:09.851 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8243ms)，等待语义VAD判断
+2026-03-07 00:17:09.851 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8243ms)，等待语义VAD判断
+2026-03-07 00:17:09.852 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8244ms)，等待语义VAD判断
+2026-03-07 00:17:09.852 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8244ms)，等待语义VAD判断
+2026-03-07 00:17:09.852 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8244ms)，等待语义VAD判断
+2026-03-07 00:17:09.853 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8245ms)，等待语义VAD判断
+2026-03-07 00:17:09.856 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8248ms)，等待语义VAD判断
+2026-03-07 00:17:09.856 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8248ms)，等待语义VAD判断
+2026-03-07 00:17:09.856 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8248ms)，等待语义VAD判断
+2026-03-07 00:17:09.856 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8248ms)，等待语义VAD判断
+2026-03-07 00:17:09.857 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8249ms)，等待语义VAD判断
+2026-03-07 00:17:09.857 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8249ms)，等待语义VAD判断
+2026-03-07 00:17:09.857 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8249ms)，等待语义VAD判断
+2026-03-07 00:17:09.857 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8249ms)，等待语义VAD判断
+2026-03-07 00:17:09.857 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8249ms)，等待语义VAD判断
+2026-03-07 00:17:09.858 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8250ms)，等待语义VAD判断
+2026-03-07 00:17:09.858 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8250ms)，等待语义VAD判断
+2026-03-07 00:17:09.858 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8250ms)，等待语义VAD判断
+2026-03-07 00:17:09.859 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8251ms)，等待语义VAD判断
+2026-03-07 00:17:09.859 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8251ms)，等待语义VAD判断
+2026-03-07 00:17:09.859 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8251ms)，等待语义VAD判断
+2026-03-07 00:17:09.860 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8252ms)，等待语义VAD判断
+2026-03-07 00:17:09.860 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8252ms)，等待语义VAD判断
+2026-03-07 00:17:09.860 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8252ms)，等待语义VAD判断
+2026-03-07 00:17:09.860 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8252ms)，等待语义VAD判断
+2026-03-07 00:17:09.860 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8253ms)，等待语义VAD判断
+2026-03-07 00:17:09.861 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8253ms)，等待语义VAD判断
+2026-03-07 00:17:09.861 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8253ms)，等待语义VAD判断
+2026-03-07 00:17:09.861 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8253ms)，等待语义VAD判断
+2026-03-07 00:17:09.861 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8253ms)，等待语义VAD判断
+2026-03-07 00:17:09.862 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8254ms)，等待语义VAD判断
+2026-03-07 00:17:09.862 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8254ms)，等待语义VAD判断
+2026-03-07 00:17:09.862 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8254ms)，等待语义VAD判断
+2026-03-07 00:17:09.862 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8254ms)，等待语义VAD判断
+2026-03-07 00:17:09.862 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8255ms)，等待语义VAD判断
+2026-03-07 00:17:09.863 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8255ms)，等待语义VAD判断
+2026-03-07 00:17:09.863 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8255ms)，等待语义VAD判断
+2026-03-07 00:17:09.863 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8255ms)，等待语义VAD判断
+2026-03-07 00:17:09.863 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8255ms)，等待语义VAD判断
+2026-03-07 00:17:09.864 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8256ms)，等待语义VAD判断
+2026-03-07 00:17:09.864 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8256ms)，等待语义VAD判断
+2026-03-07 00:17:09.864 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8256ms)，等待语义VAD判断
+2026-03-07 00:17:09.864 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8256ms)，等待语义VAD判断
+2026-03-07 00:17:09.864 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8256ms)，等待语义VAD判断
+2026-03-07 00:17:09.865 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8257ms)，等待语义VAD判断
+2026-03-07 00:17:09.865 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 8257ms)，等待语义VAD判断
+2026-03-07 00:17:09.865 | INFO     | voice_dialog.system:_clear_audio_stream:879 - [音频流] 已清空，准备处理新问题
+2026-03-07 00:17:09.866 | INFO     | voice_dialog.system:_start_streaming:411 - 启动流式处理 (打断模式: False)
+2026-03-07 00:17:09.867 | DEBUG    | voice_dialog.modules.qwen_asr:on_open:46 - ASR 流式连接已打开
+2026-03-07 00:17:09.868 | INFO     | voice_dialog.modules.qwen_asr:start_stream:158 - ASR 流式会话已启动
+2026-03-07 00:17:09.868 | DEBUG    | voice_dialog.modules.semantic_vad:reset:508 - 语义VAD 状态已重置
+2026-03-07 00:17:09.872 | DEBUG    | voice_dialog.modules.semantic_vad:set_interrupt_mode:276 - 语义VAD 退出打断模式
+2026-03-07 00:17:09.872 | INFO     | voice_dialog.modules.semantic_vad:start:539 - 流式语义VAD 已启动 (打断模式: False)
+2026-03-07 00:17:09.872 | DEBUG    | voice_dialog.modules.emotion:reset_sentence:331 - 情绪识别器句子状态已重置
+2026-03-07 00:17:09.873 | INFO     | voice_dialog.modules.emotion:reset:338 - 情绪识别器已完全重置
+2026-03-07 00:17:09.873 | INFO     | voice_dialog.modules.emotion:start:374 - 并行情绪识别器已启动
+2026-03-07 00:17:09.873 | INFO     | voice_dialog.system:_start_streaming:426 - 流式处理已启动
+2026-03-07 00:17:09.874 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: idle -> listening (检测到语音)
+2026-03-07 00:17:09.874 | INFO     | voice_dialog.system:process_audio:204 - 语音段开始 (时间: 1772813829865ms)
+2026-03-07 00:17:09.880 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:09.881 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:09.882 | INFO     | voice_dialog.websocket_server:send_clear_audio:134 - [音频流] 已通知前端清空音频队列: client_1772813815217
+2026-03-07 00:17:09.883 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:09.883 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:10.047 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '南京不仅历史厚重，还拥有丰富的自然与人文...' -> 68544 bytes
+2026-03-07 00:17:10.419 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '同时，它也是中国重要的科教中心城市之一，...' -> 50256 bytes
+2026-03-07 00:17:10.555 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '气候上属于亚热带季风气候，四季分明，春秋...' -> 46080 bytes
+2026-03-07 00:17:10.750 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 260ms)，等待语义VAD判断
+2026-03-07 00:17:10.751 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 260ms)，等待语义VAD判断
+2026-03-07 00:17:10.754 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 帮我介绍
+2026-03-07 00:17:11.010 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 520ms)，等待语义VAD判断
+2026-03-07 00:17:11.011 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 520ms)，等待语义VAD判断
+2026-03-07 00:17:11.012 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 521ms)，等待语义VAD判断
+2026-03-07 00:17:11.012 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 522ms)，等待语义VAD判断
+2026-03-07 00:17:11.013 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 522ms)，等待语义VAD判断
+2026-03-07 00:17:11.013 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 522ms)，等待语义VAD判断
+2026-03-07 00:17:11.013 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 522ms)，等待语义VAD判断
+2026-03-07 00:17:11.013 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 523ms)，等待语义VAD判断
+2026-03-07 00:17:11.013 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 523ms)，等待语义VAD判断
+2026-03-07 00:17:11.014 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 523ms)，等待语义VAD判断
+2026-03-07 00:17:11.014 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 523ms)，等待语义VAD判断
+2026-03-07 00:17:11.014 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 524ms)，等待语义VAD判断
+2026-03-07 00:17:11.014 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 524ms)，等待语义VAD判断
+2026-03-07 00:17:11.015 | INFO     | voice_dialog.system:process_audio:238 - 结束语音段: 静音+文本充足, 文本: '帮我介绍'
+2026-03-07 00:17:11.015 | DEBUG    | voice_dialog.modules.semantic_vad:set_interrupt_mode:276 - 语义VAD 退出打断模式
+2026-03-07 00:17:11.015 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: listening -> processing (语音段结束)
+2026-03-07 00:17:11.017 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 帮我介绍
+2026-03-07 00:17:11.018 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 帮我介绍一下西
+2026-03-07 00:17:11.158 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 帮我介绍一下西游
+2026-03-07 00:17:11.290 | DEBUG    | voice_dialog.modules.qwen_asr:on_event:64 - ASR 流式结果: 帮我介绍一下西游记。
+2026-03-07 00:17:11.328 | DEBUG    | voice_dialog.modules.qwen_asr:on_close:50 - ASR 流式连接已关闭
+2026-03-07 00:17:11.328 | INFO     | voice_dialog.modules.qwen_asr:stop_stream:221 - ASR 流式会话结束，最终结果: '帮我介绍一下西游记。'
+2026-03-07 00:17:11.329 | INFO     | voice_dialog.system:_finalize_streaming:495 - ASR最终结果: '帮我介绍一下西游记。'
+2026-03-07 00:17:11.332 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:11.332 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:11.333 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:11.333 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.50)
+2026-03-07 00:17:11.499 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '需要我为你查南京当前的天气、推荐旅游路线...' -> 54288 bytes
+2026-03-07 00:17:13.487 | INFO     | voice_dialog.modules.emotion:finalize_sentence:170 - 句子情绪识别完成: neutral (置信度: 0.98)
+2026-03-07 00:17:13.487 | DEBUG    | voice_dialog.modules.emotion:reset_sentence:331 - 情绪识别器句子状态已重置
+2026-03-07 00:17:13.488 | INFO     | voice_dialog.system:_finalize_streaming:513 - 处理结果: 文本='帮我介绍一下西游记。', 语义=complete, 情绪=neutral
+2026-03-07 00:17:13.488 | INFO     | voice_dialog.system:_process_with_llm:566 - [音频流] 新问题开始，已清空旧音频队列
+2026-03-07 00:17:13.488 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: processing -> thinking (开始LLM处理)
+2026-03-07 00:17:13.489 | INFO     | voice_dialog.system:_process_with_llm:580 - 融合输入 LLM: 文本='帮我介绍一下西游记。', 情绪=neutral
+2026-03-07 00:17:13.490 | DEBUG    | voice_dialog.modules.tts:__init__:295 - StreamingTTSProcessor 初始化完成
+2026-03-07 00:17:13.490 | DEBUG    | voice_dialog.modules.llm_planner:_update_current_time:335 - 更新当前时间: 2026年03月07日 星期六 00:17:13
+2026-03-07 00:17:13.492 | INFO     | voice_dialog.websocket_server:send_clear_audio:134 - [音频流] 已通知前端清空音频队列: client_1772813815217
+2026-03-07 00:17:13.506 | DEBUG    | voice_dialog.system:_on_asr_result:464 - 语义VAD判断: continuing (置信度: 0.98)
+2026-03-07 00:17:16.079 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '《西游记》是中国古代四大名著之一，成书于...' -> 42480 bytes
+2026-03-07 00:17:16.572 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '它是一部融合了神话、寓言、宗教与讽刺的长...' -> 39168 bytes
+2026-03-07 00:17:18.462 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '故事以唐代高僧玄奘（唐僧）西行取经的真实...' -> 56880 bytes
+2026-03-07 00:17:18.909 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '核心人物特点鲜明：...' -> 14256 bytes
+2026-03-07 00:17:19.085 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '孙悟空：机智勇敢、神通广大，象征“心猿”...' -> 34992 bytes
+2026-03-07 00:17:19.422 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '全书共一百回，主要讲述唐僧在观音菩萨点化...' -> 92016 bytes
+2026-03-07 00:17:19.428 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:19.644 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '猪八戒：憨厚贪吃、好色懒惰，也重情重义，...' -> 43344 bytes
+2026-03-07 00:17:20.210 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '沙悟净：忠厚稳重、任劳任怨，是团队的调和...' -> 31248 bytes
+2026-03-07 00:17:20.738 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '唐僧：坚定虔诚、慈悲为怀，但有时迂腐固执...' -> 41616 bytes
+2026-03-07 00:17:21.290 | INFO     | voice_dialog.modules.tts:finalize:497 - StreamingTTSProcessor 完成: 总文本 440 字符, 音频 396000 bytes
+2026-03-07 00:17:21.291 | INFO     | voice_dialog.system:_process_with_llm:667 - 对话完成 - 用户: '帮我介绍一下西游记。' -> 助手: '《西游记》是中国古代四大名著之一，成书于明代，作者一般认为是吴承恩。它是一部融合了神话、寓言、宗教与...'
+2026-03-07 00:17:21.292 | DEBUG    | voice_dialog.core.state_machine:transition_to:47 - 状态转换: thinking -> idle (处理完成)
+2026-03-07 00:17:21.292 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10802ms)，等待语义VAD判断
+2026-03-07 00:17:21.293 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10802ms)，等待语义VAD判断
+2026-03-07 00:17:21.293 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10802ms)，等待语义VAD判断
+2026-03-07 00:17:21.293 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10802ms)，等待语义VAD判断
+2026-03-07 00:17:21.293 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10803ms)，等待语义VAD判断
+2026-03-07 00:17:21.293 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10803ms)，等待语义VAD判断
+2026-03-07 00:17:21.294 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10803ms)，等待语义VAD判断
+2026-03-07 00:17:21.294 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10803ms)，等待语义VAD判断
+2026-03-07 00:17:21.294 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10804ms)，等待语义VAD判断
+2026-03-07 00:17:21.295 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10804ms)，等待语义VAD判断
+2026-03-07 00:17:21.295 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10804ms)，等待语义VAD判断
+2026-03-07 00:17:21.295 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10805ms)，等待语义VAD判断
+2026-03-07 00:17:21.295 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10805ms)，等待语义VAD判断
+2026-03-07 00:17:21.296 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10805ms)，等待语义VAD判断
+2026-03-07 00:17:21.296 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10806ms)，等待语义VAD判断
+2026-03-07 00:17:21.297 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10806ms)，等待语义VAD判断
+2026-03-07 00:17:21.297 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10806ms)，等待语义VAD判断
+2026-03-07 00:17:21.297 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10806ms)，等待语义VAD判断
+2026-03-07 00:17:21.297 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10807ms)，等待语义VAD判断
+2026-03-07 00:17:21.298 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10807ms)，等待语义VAD判断
+2026-03-07 00:17:21.298 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10807ms)，等待语义VAD判断
+2026-03-07 00:17:21.298 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10808ms)，等待语义VAD判断
+2026-03-07 00:17:21.298 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10808ms)，等待语义VAD判断
+2026-03-07 00:17:21.299 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10808ms)，等待语义VAD判断
+2026-03-07 00:17:21.299 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10808ms)，等待语义VAD判断
+2026-03-07 00:17:21.299 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10808ms)，等待语义VAD判断
+2026-03-07 00:17:21.299 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10809ms)，等待语义VAD判断
+2026-03-07 00:17:21.300 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10809ms)，等待语义VAD判断
+2026-03-07 00:17:21.302 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10812ms)，等待语义VAD判断
+2026-03-07 00:17:21.303 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10812ms)，等待语义VAD判断
+2026-03-07 00:17:21.303 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10812ms)，等待语义VAD判断
+2026-03-07 00:17:21.303 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10813ms)，等待语义VAD判断
+2026-03-07 00:17:21.304 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10813ms)，等待语义VAD判断
+2026-03-07 00:17:21.304 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10813ms)，等待语义VAD判断
+2026-03-07 00:17:21.304 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10814ms)，等待语义VAD判断
+2026-03-07 00:17:21.305 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10814ms)，等待语义VAD判断
+2026-03-07 00:17:21.305 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10814ms)，等待语义VAD判断
+2026-03-07 00:17:21.305 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10815ms)，等待语义VAD判断
+2026-03-07 00:17:21.305 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10815ms)，等待语义VAD判断
+2026-03-07 00:17:21.306 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10815ms)，等待语义VAD判断
+2026-03-07 00:17:21.306 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10815ms)，等待语义VAD判断
+2026-03-07 00:17:21.306 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10815ms)，等待语义VAD判断
+2026-03-07 00:17:21.306 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10816ms)，等待语义VAD判断
+2026-03-07 00:17:21.306 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10816ms)，等待语义VAD判断
+2026-03-07 00:17:21.307 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10816ms)，等待语义VAD判断
+2026-03-07 00:17:21.307 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10816ms)，等待语义VAD判断
+2026-03-07 00:17:21.307 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10817ms)，等待语义VAD判断
+2026-03-07 00:17:21.307 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10817ms)，等待语义VAD判断
+2026-03-07 00:17:21.308 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10817ms)，等待语义VAD判断
+2026-03-07 00:17:21.308 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10817ms)，等待语义VAD判断
+2026-03-07 00:17:21.308 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10817ms)，等待语义VAD判断
+2026-03-07 00:17:21.308 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10818ms)，等待语义VAD判断
+2026-03-07 00:17:21.309 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10818ms)，等待语义VAD判断
+2026-03-07 00:17:21.309 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10818ms)，等待语义VAD判断
+2026-03-07 00:17:21.309 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10819ms)，等待语义VAD判断
+2026-03-07 00:17:21.310 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10819ms)，等待语义VAD判断
+2026-03-07 00:17:21.310 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10819ms)，等待语义VAD判断
+2026-03-07 00:17:21.310 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10820ms)，等待语义VAD判断
+2026-03-07 00:17:21.311 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10820ms)，等待语义VAD判断
+2026-03-07 00:17:21.311 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10820ms)，等待语义VAD判断
+2026-03-07 00:17:21.311 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10821ms)，等待语义VAD判断
+2026-03-07 00:17:21.311 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10821ms)，等待语义VAD判断
+2026-03-07 00:17:21.312 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10821ms)，等待语义VAD判断
+2026-03-07 00:17:21.312 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10821ms)，等待语义VAD判断
+2026-03-07 00:17:21.312 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10822ms)，等待语义VAD判断
+2026-03-07 00:17:21.312 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10822ms)，等待语义VAD判断
+2026-03-07 00:17:21.312 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10822ms)，等待语义VAD判断
+2026-03-07 00:17:21.313 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10822ms)，等待语义VAD判断
+2026-03-07 00:17:21.313 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10822ms)，等待语义VAD判断
+2026-03-07 00:17:21.313 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10823ms)，等待语义VAD判断
+2026-03-07 00:17:21.313 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10823ms)，等待语义VAD判断
+2026-03-07 00:17:21.314 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10823ms)，等待语义VAD判断
+2026-03-07 00:17:21.314 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10823ms)，等待语义VAD判断
+2026-03-07 00:17:21.314 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10824ms)，等待语义VAD判断
+2026-03-07 00:17:21.314 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10824ms)，等待语义VAD判断
+2026-03-07 00:17:21.314 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10824ms)，等待语义VAD判断
+2026-03-07 00:17:21.315 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10824ms)，等待语义VAD判断
+2026-03-07 00:17:21.315 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10824ms)，等待语义VAD判断
+2026-03-07 00:17:21.315 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10825ms)，等待语义VAD判断
+2026-03-07 00:17:21.315 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10825ms)，等待语义VAD判断
+2026-03-07 00:17:21.316 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10825ms)，等待语义VAD判断
+2026-03-07 00:17:21.316 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10826ms)，等待语义VAD判断
+2026-03-07 00:17:21.317 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10826ms)，等待语义VAD判断
+2026-03-07 00:17:21.317 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10827ms)，等待语义VAD判断
+2026-03-07 00:17:21.320 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10829ms)，等待语义VAD判断
+2026-03-07 00:17:21.320 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10829ms)，等待语义VAD判断
+2026-03-07 00:17:21.320 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10829ms)，等待语义VAD判断
+2026-03-07 00:17:21.320 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10830ms)，等待语义VAD判断
+2026-03-07 00:17:21.320 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10830ms)，等待语义VAD判断
+2026-03-07 00:17:21.321 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10830ms)，等待语义VAD判断
+2026-03-07 00:17:21.321 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10830ms)，等待语义VAD判断
+2026-03-07 00:17:21.321 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10831ms)，等待语义VAD判断
+2026-03-07 00:17:21.321 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10831ms)，等待语义VAD判断
+2026-03-07 00:17:21.322 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10831ms)，等待语义VAD判断
+2026-03-07 00:17:21.322 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10831ms)，等待语义VAD判断
+2026-03-07 00:17:21.322 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10832ms)，等待语义VAD判断
+2026-03-07 00:17:21.323 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10832ms)，等待语义VAD判断
+2026-03-07 00:17:21.323 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10832ms)，等待语义VAD判断
+2026-03-07 00:17:21.323 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10833ms)，等待语义VAD判断
+2026-03-07 00:17:21.323 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10833ms)，等待语义VAD判断
+2026-03-07 00:17:21.324 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10833ms)，等待语义VAD判断
+2026-03-07 00:17:21.324 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10833ms)，等待语义VAD判断
+2026-03-07 00:17:21.324 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10834ms)，等待语义VAD判断
+2026-03-07 00:17:21.325 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10834ms)，等待语义VAD判断
+2026-03-07 00:17:21.325 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10834ms)，等待语义VAD判断
+2026-03-07 00:17:21.325 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10835ms)，等待语义VAD判断
+2026-03-07 00:17:21.326 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10835ms)，等待语义VAD判断
+2026-03-07 00:17:21.326 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10835ms)，等待语义VAD判断
+2026-03-07 00:17:21.326 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10835ms)，等待语义VAD判断
+2026-03-07 00:17:21.326 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10836ms)，等待语义VAD判断
+2026-03-07 00:17:21.326 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10836ms)，等待语义VAD判断
+2026-03-07 00:17:21.327 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10836ms)，等待语义VAD判断
+2026-03-07 00:17:21.327 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10836ms)，等待语义VAD判断
+2026-03-07 00:17:21.327 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10837ms)，等待语义VAD判断
+2026-03-07 00:17:21.327 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10837ms)，等待语义VAD判断
+2026-03-07 00:17:21.328 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10837ms)，等待语义VAD判断
+2026-03-07 00:17:21.328 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10837ms)，等待语义VAD判断
+2026-03-07 00:17:21.328 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10838ms)，等待语义VAD判断
+2026-03-07 00:17:21.328 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10838ms)，等待语义VAD判断
+2026-03-07 00:17:21.329 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10838ms)，等待语义VAD判断
+2026-03-07 00:17:21.329 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10838ms)，等待语义VAD判断
+2026-03-07 00:17:21.329 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10838ms)，等待语义VAD判断
+2026-03-07 00:17:21.329 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10839ms)，等待语义VAD判断
+2026-03-07 00:17:21.330 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10839ms)，等待语义VAD判断
+2026-03-07 00:17:21.330 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10839ms)，等待语义VAD判断
+2026-03-07 00:17:21.330 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10840ms)，等待语义VAD判断
+2026-03-07 00:17:21.331 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10840ms)，等待语义VAD判断
+2026-03-07 00:17:21.331 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10841ms)，等待语义VAD判断
+2026-03-07 00:17:21.331 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10841ms)，等待语义VAD判断
+2026-03-07 00:17:21.332 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10841ms)，等待语义VAD判断
+2026-03-07 00:17:21.334 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10843ms)，等待语义VAD判断
+2026-03-07 00:17:21.334 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10844ms)，等待语义VAD判断
+2026-03-07 00:17:21.334 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10844ms)，等待语义VAD判断
+2026-03-07 00:17:21.335 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10844ms)，等待语义VAD判断
+2026-03-07 00:17:21.335 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10844ms)，等待语义VAD判断
+2026-03-07 00:17:21.335 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10844ms)，等待语义VAD判断
+2026-03-07 00:17:21.335 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10845ms)，等待语义VAD判断
+2026-03-07 00:17:21.336 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10845ms)，等待语义VAD判断
+2026-03-07 00:17:21.336 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10845ms)，等待语义VAD判断
+2026-03-07 00:17:21.336 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10846ms)，等待语义VAD判断
+2026-03-07 00:17:21.336 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10846ms)，等待语义VAD判断
+2026-03-07 00:17:21.337 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10846ms)，等待语义VAD判断
+2026-03-07 00:17:21.337 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10846ms)，等待语义VAD判断
+2026-03-07 00:17:21.337 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10847ms)，等待语义VAD判断
+2026-03-07 00:17:21.338 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10847ms)，等待语义VAD判断
+2026-03-07 00:17:21.338 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10847ms)，等待语义VAD判断
+2026-03-07 00:17:21.338 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10848ms)，等待语义VAD判断
+2026-03-07 00:17:21.339 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10848ms)，等待语义VAD判断
+2026-03-07 00:17:21.339 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10848ms)，等待语义VAD判断
+2026-03-07 00:17:21.339 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10849ms)，等待语义VAD判断
+2026-03-07 00:17:21.340 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10849ms)，等待语义VAD判断
+2026-03-07 00:17:21.340 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10849ms)，等待语义VAD判断
+2026-03-07 00:17:21.340 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10850ms)，等待语义VAD判断
+2026-03-07 00:17:21.340 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10850ms)，等待语义VAD判断
+2026-03-07 00:17:21.341 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10850ms)，等待语义VAD判断
+2026-03-07 00:17:21.341 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10850ms)，等待语义VAD判断
+2026-03-07 00:17:21.341 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10850ms)，等待语义VAD判断
+2026-03-07 00:17:21.341 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10851ms)，等待语义VAD判断
+2026-03-07 00:17:21.341 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10851ms)，等待语义VAD判断
+2026-03-07 00:17:21.342 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10851ms)，等待语义VAD判断
+2026-03-07 00:17:21.342 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10851ms)，等待语义VAD判断
+2026-03-07 00:17:21.342 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10852ms)，等待语义VAD判断
+2026-03-07 00:17:21.342 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10852ms)，等待语义VAD判断
+2026-03-07 00:17:21.343 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10852ms)，等待语义VAD判断
+2026-03-07 00:17:21.343 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10852ms)，等待语义VAD判断
+2026-03-07 00:17:21.343 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10853ms)，等待语义VAD判断
+2026-03-07 00:17:21.344 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10853ms)，等待语义VAD判断
+2026-03-07 00:17:21.344 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10853ms)，等待语义VAD判断
+2026-03-07 00:17:21.344 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10854ms)，等待语义VAD判断
+2026-03-07 00:17:21.344 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10854ms)，等待语义VAD判断
+2026-03-07 00:17:21.345 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10854ms)，等待语义VAD判断
+2026-03-07 00:17:21.345 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10855ms)，等待语义VAD判断
+2026-03-07 00:17:21.346 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10855ms)，等待语义VAD判断
+2026-03-07 00:17:21.346 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10856ms)，等待语义VAD判断
+2026-03-07 00:17:21.348 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10858ms)，等待语义VAD判断
+2026-03-07 00:17:21.348 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10858ms)，等待语义VAD判断
+2026-03-07 00:17:21.349 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10858ms)，等待语义VAD判断
+2026-03-07 00:17:21.349 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10858ms)，等待语义VAD判断
+2026-03-07 00:17:21.349 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10859ms)，等待语义VAD判断
+2026-03-07 00:17:21.349 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10859ms)，等待语义VAD判断
+2026-03-07 00:17:21.350 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10859ms)，等待语义VAD判断
+2026-03-07 00:17:21.350 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10859ms)，等待语义VAD判断
+2026-03-07 00:17:21.350 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10860ms)，等待语义VAD判断
+2026-03-07 00:17:21.350 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10860ms)，等待语义VAD判断
+2026-03-07 00:17:21.351 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10860ms)，等待语义VAD判断
+2026-03-07 00:17:21.351 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10860ms)，等待语义VAD判断
+2026-03-07 00:17:21.351 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10861ms)，等待语义VAD判断
+2026-03-07 00:17:21.352 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10861ms)，等待语义VAD判断
+2026-03-07 00:17:21.352 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10861ms)，等待语义VAD判断
+2026-03-07 00:17:21.352 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10862ms)，等待语义VAD判断
+2026-03-07 00:17:21.352 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10862ms)，等待语义VAD判断
+2026-03-07 00:17:21.353 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10862ms)，等待语义VAD判断
+2026-03-07 00:17:21.353 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10862ms)，等待语义VAD判断
+2026-03-07 00:17:21.353 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10863ms)，等待语义VAD判断
+2026-03-07 00:17:21.354 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10863ms)，等待语义VAD判断
+2026-03-07 00:17:21.354 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10863ms)，等待语义VAD判断
+2026-03-07 00:17:21.354 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10863ms)，等待语义VAD判断
+2026-03-07 00:17:21.354 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10864ms)，等待语义VAD判断
+2026-03-07 00:17:21.354 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10864ms)，等待语义VAD判断
+2026-03-07 00:17:21.355 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10864ms)，等待语义VAD判断
+2026-03-07 00:17:21.355 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10864ms)，等待语义VAD判断
+2026-03-07 00:17:21.355 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10865ms)，等待语义VAD判断
+2026-03-07 00:17:21.355 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10865ms)，等待语义VAD判断
+2026-03-07 00:17:21.356 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10865ms)，等待语义VAD判断
+2026-03-07 00:17:21.356 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10865ms)，等待语义VAD判断
+2026-03-07 00:17:21.356 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10865ms)，等待语义VAD判断
+2026-03-07 00:17:21.356 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10866ms)，等待语义VAD判断
+2026-03-07 00:17:21.356 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10866ms)，等待语义VAD判断
+2026-03-07 00:17:21.357 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10866ms)，等待语义VAD判断
+2026-03-07 00:17:21.357 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10866ms)，等待语义VAD判断
+2026-03-07 00:17:21.357 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10867ms)，等待语义VAD判断
+2026-03-07 00:17:21.357 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10867ms)，等待语义VAD判断
+2026-03-07 00:17:21.358 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10867ms)，等待语义VAD判断
+2026-03-07 00:17:21.358 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10868ms)，等待语义VAD判断
+2026-03-07 00:17:21.358 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10868ms)，等待语义VAD判断
+2026-03-07 00:17:21.359 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10868ms)，等待语义VAD判断
+2026-03-07 00:17:21.359 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10868ms)，等待语义VAD判断
+2026-03-07 00:17:21.359 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10869ms)，等待语义VAD判断
+2026-03-07 00:17:21.359 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10869ms)，等待语义VAD判断
+2026-03-07 00:17:21.362 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10871ms)，等待语义VAD判断
+2026-03-07 00:17:21.362 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10871ms)，等待语义VAD判断
+2026-03-07 00:17:21.362 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10872ms)，等待语义VAD判断
+2026-03-07 00:17:21.362 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10872ms)，等待语义VAD判断
+2026-03-07 00:17:21.363 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10872ms)，等待语义VAD判断
+2026-03-07 00:17:21.363 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10872ms)，等待语义VAD判断
+2026-03-07 00:17:21.363 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10873ms)，等待语义VAD判断
+2026-03-07 00:17:21.363 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10873ms)，等待语义VAD判断
+2026-03-07 00:17:21.364 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10873ms)，等待语义VAD判断
+2026-03-07 00:17:21.364 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10873ms)，等待语义VAD判断
+2026-03-07 00:17:21.364 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10874ms)，等待语义VAD判断
+2026-03-07 00:17:21.364 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10874ms)，等待语义VAD判断
+2026-03-07 00:17:21.365 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10874ms)，等待语义VAD判断
+2026-03-07 00:17:21.365 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10874ms)，等待语义VAD判断
+2026-03-07 00:17:21.365 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10875ms)，等待语义VAD判断
+2026-03-07 00:17:21.366 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10875ms)，等待语义VAD判断
+2026-03-07 00:17:21.366 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10876ms)，等待语义VAD判断
+2026-03-07 00:17:21.367 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10876ms)，等待语义VAD判断
+2026-03-07 00:17:21.367 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10877ms)，等待语义VAD判断
+2026-03-07 00:17:21.367 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10877ms)，等待语义VAD判断
+2026-03-07 00:17:21.368 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10877ms)，等待语义VAD判断
+2026-03-07 00:17:21.368 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10877ms)，等待语义VAD判断
+2026-03-07 00:17:21.368 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10877ms)，等待语义VAD判断
+2026-03-07 00:17:21.368 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10878ms)，等待语义VAD判断
+2026-03-07 00:17:21.368 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10878ms)，等待语义VAD判断
+2026-03-07 00:17:21.369 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10878ms)，等待语义VAD判断
+2026-03-07 00:17:21.369 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10878ms)，等待语义VAD判断
+2026-03-07 00:17:21.369 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10879ms)，等待语义VAD判断
+2026-03-07 00:17:21.369 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10879ms)，等待语义VAD判断
+2026-03-07 00:17:21.370 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10879ms)，等待语义VAD判断
+2026-03-07 00:17:21.370 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10879ms)，等待语义VAD判断
+2026-03-07 00:17:21.370 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10879ms)，等待语义VAD判断
+2026-03-07 00:17:21.370 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10880ms)，等待语义VAD判断
+2026-03-07 00:17:21.370 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10880ms)，等待语义VAD判断
+2026-03-07 00:17:21.371 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10880ms)，等待语义VAD判断
+2026-03-07 00:17:21.371 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10881ms)，等待语义VAD判断
+2026-03-07 00:17:21.371 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10881ms)，等待语义VAD判断
+2026-03-07 00:17:21.372 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10881ms)，等待语义VAD判断
+2026-03-07 00:17:21.372 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10881ms)，等待语义VAD判断
+2026-03-07 00:17:21.372 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10882ms)，等待语义VAD判断
+2026-03-07 00:17:21.373 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10882ms)，等待语义VAD判断
+2026-03-07 00:17:21.373 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10882ms)，等待语义VAD判断
+2026-03-07 00:17:21.373 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10882ms)，等待语义VAD判断
+2026-03-07 00:17:21.373 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10883ms)，等待语义VAD判断
+2026-03-07 00:17:21.374 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10883ms)，等待语义VAD判断
+2026-03-07 00:17:21.374 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10883ms)，等待语义VAD判断
+2026-03-07 00:17:21.374 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10884ms)，等待语义VAD判断
+2026-03-07 00:17:21.376 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10886ms)，等待语义VAD判断
+2026-03-07 00:17:21.377 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10886ms)，等待语义VAD判断
+2026-03-07 00:17:21.377 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10886ms)，等待语义VAD判断
+2026-03-07 00:17:21.377 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10886ms)，等待语义VAD判断
+2026-03-07 00:17:21.377 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10887ms)，等待语义VAD判断
+2026-03-07 00:17:21.377 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10887ms)，等待语义VAD判断
+2026-03-07 00:17:21.378 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10887ms)，等待语义VAD判断
+2026-03-07 00:17:21.378 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10887ms)，等待语义VAD判断
+2026-03-07 00:17:21.378 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10888ms)，等待语义VAD判断
+2026-03-07 00:17:21.379 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10888ms)，等待语义VAD判断
+2026-03-07 00:17:21.379 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10888ms)，等待语义VAD判断
+2026-03-07 00:17:21.379 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10889ms)，等待语义VAD判断
+2026-03-07 00:17:21.380 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10889ms)，等待语义VAD判断
+2026-03-07 00:17:21.380 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10890ms)，等待语义VAD判断
+2026-03-07 00:17:21.381 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10890ms)，等待语义VAD判断
+2026-03-07 00:17:21.381 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10890ms)，等待语义VAD判断
+2026-03-07 00:17:21.381 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10891ms)，等待语义VAD判断
+2026-03-07 00:17:21.381 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10891ms)，等待语义VAD判断
+2026-03-07 00:17:21.382 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10891ms)，等待语义VAD判断
+2026-03-07 00:17:21.382 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10891ms)，等待语义VAD判断
+2026-03-07 00:17:21.382 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10891ms)，等待语义VAD判断
+2026-03-07 00:17:21.382 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10892ms)，等待语义VAD判断
+2026-03-07 00:17:21.382 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10892ms)，等待语义VAD判断
+2026-03-07 00:17:21.383 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10892ms)，等待语义VAD判断
+2026-03-07 00:17:21.383 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10892ms)，等待语义VAD判断
+2026-03-07 00:17:21.383 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10893ms)，等待语义VAD判断
+2026-03-07 00:17:21.383 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10893ms)，等待语义VAD判断
+2026-03-07 00:17:21.384 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10893ms)，等待语义VAD判断
+2026-03-07 00:17:21.384 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10893ms)，等待语义VAD判断
+2026-03-07 00:17:21.384 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10894ms)，等待语义VAD判断
+2026-03-07 00:17:21.384 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10894ms)，等待语义VAD判断
+2026-03-07 00:17:21.385 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10894ms)，等待语义VAD判断
+2026-03-07 00:17:21.385 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10894ms)，等待语义VAD判断
+2026-03-07 00:17:21.385 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10895ms)，等待语义VAD判断
+2026-03-07 00:17:21.385 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10895ms)，等待语义VAD判断
+2026-03-07 00:17:21.386 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10895ms)，等待语义VAD判断
+2026-03-07 00:17:21.386 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10895ms)，等待语义VAD判断
+2026-03-07 00:17:21.386 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10896ms)，等待语义VAD判断
+2026-03-07 00:17:21.387 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10896ms)，等待语义VAD判断
+2026-03-07 00:17:21.387 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10896ms)，等待语义VAD判断
+2026-03-07 00:17:21.387 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10897ms)，等待语义VAD判断
+2026-03-07 00:17:21.387 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10897ms)，等待语义VAD判断
+2026-03-07 00:17:21.388 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10897ms)，等待语义VAD判断
+2026-03-07 00:17:21.388 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10897ms)，等待语义VAD判断
+2026-03-07 00:17:21.388 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10898ms)，等待语义VAD判断
+2026-03-07 00:17:21.388 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10898ms)，等待语义VAD判断
+2026-03-07 00:17:21.389 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10898ms)，等待语义VAD判断
+2026-03-07 00:17:21.389 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10898ms)，等待语义VAD判断
+2026-03-07 00:17:21.389 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10899ms)，等待语义VAD判断
+2026-03-07 00:17:21.389 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10899ms)，等待语义VAD判断
+2026-03-07 00:17:21.390 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10899ms)，等待语义VAD判断
+2026-03-07 00:17:21.390 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10899ms)，等待语义VAD判断
+2026-03-07 00:17:21.390 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10900ms)，等待语义VAD判断
+2026-03-07 00:17:21.390 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10900ms)，等待语义VAD判断
+2026-03-07 00:17:21.390 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10900ms)，等待语义VAD判断
+2026-03-07 00:17:21.391 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10900ms)，等待语义VAD判断
+2026-03-07 00:17:21.391 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10900ms)，等待语义VAD判断
+2026-03-07 00:17:21.391 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10901ms)，等待语义VAD判断
+2026-03-07 00:17:21.391 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10901ms)，等待语义VAD判断
+2026-03-07 00:17:21.392 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10901ms)，等待语义VAD判断
+2026-03-07 00:17:21.392 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10902ms)，等待语义VAD判断
+2026-03-07 00:17:21.392 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10902ms)，等待语义VAD判断
+2026-03-07 00:17:21.393 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10902ms)，等待语义VAD判断
+2026-03-07 00:17:21.393 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10902ms)，等待语义VAD判断
+2026-03-07 00:17:21.393 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10903ms)，等待语义VAD判断
+2026-03-07 00:17:21.394 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10903ms)，等待语义VAD判断
+2026-03-07 00:17:21.395 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10904ms)，等待语义VAD判断
+2026-03-07 00:17:21.395 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10904ms)，等待语义VAD判断
+2026-03-07 00:17:21.395 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10904ms)，等待语义VAD判断
+2026-03-07 00:17:21.395 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10905ms)，等待语义VAD判断
+2026-03-07 00:17:21.396 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10905ms)，等待语义VAD判断
+2026-03-07 00:17:21.398 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10907ms)，等待语义VAD判断
+2026-03-07 00:17:21.398 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10907ms)，等待语义VAD判断
+2026-03-07 00:17:21.398 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10908ms)，等待语义VAD判断
+2026-03-07 00:17:21.399 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10908ms)，等待语义VAD判断
+2026-03-07 00:17:21.399 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10908ms)，等待语义VAD判断
+2026-03-07 00:17:21.399 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10909ms)，等待语义VAD判断
+2026-03-07 00:17:21.399 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10909ms)，等待语义VAD判断
+2026-03-07 00:17:21.400 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10909ms)，等待语义VAD判断
+2026-03-07 00:17:21.400 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10910ms)，等待语义VAD判断
+2026-03-07 00:17:21.400 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10910ms)，等待语义VAD判断
+2026-03-07 00:17:21.401 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10910ms)，等待语义VAD判断
+2026-03-07 00:17:21.401 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10910ms)，等待语义VAD判断
+2026-03-07 00:17:21.401 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10911ms)，等待语义VAD判断
+2026-03-07 00:17:21.402 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10911ms)，等待语义VAD判断
+2026-03-07 00:17:21.402 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10911ms)，等待语义VAD判断
+2026-03-07 00:17:21.402 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10911ms)，等待语义VAD判断
+2026-03-07 00:17:21.402 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10912ms)，等待语义VAD判断
+2026-03-07 00:17:21.402 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10912ms)，等待语义VAD判断
+2026-03-07 00:17:21.403 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10912ms)，等待语义VAD判断
+2026-03-07 00:17:21.403 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10912ms)，等待语义VAD判断
+2026-03-07 00:17:21.403 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10913ms)，等待语义VAD判断
+2026-03-07 00:17:21.403 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10913ms)，等待语义VAD判断
+2026-03-07 00:17:21.404 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10913ms)，等待语义VAD判断
+2026-03-07 00:17:21.404 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10913ms)，等待语义VAD判断
+2026-03-07 00:17:21.404 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10913ms)，等待语义VAD判断
+2026-03-07 00:17:21.404 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10914ms)，等待语义VAD判断
+2026-03-07 00:17:21.404 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10914ms)，等待语义VAD判断
+2026-03-07 00:17:21.405 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10914ms)，等待语义VAD判断
+2026-03-07 00:17:21.405 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10914ms)，等待语义VAD判断
+2026-03-07 00:17:21.405 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10915ms)，等待语义VAD判断
+2026-03-07 00:17:21.406 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10915ms)，等待语义VAD判断
+2026-03-07 00:17:21.406 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10915ms)，等待语义VAD判断
+2026-03-07 00:17:21.406 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10916ms)，等待语义VAD判断
+2026-03-07 00:17:21.406 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10916ms)，等待语义VAD判断
+2026-03-07 00:17:21.407 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10916ms)，等待语义VAD判断
+2026-03-07 00:17:21.407 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10917ms)，等待语义VAD判断
+2026-03-07 00:17:21.407 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10917ms)，等待语义VAD判断
+2026-03-07 00:17:21.408 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10917ms)，等待语义VAD判断
+2026-03-07 00:17:21.408 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10918ms)，等待语义VAD判断
+2026-03-07 00:17:21.408 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10918ms)，等待语义VAD判断
+2026-03-07 00:17:21.409 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10918ms)，等待语义VAD判断
+2026-03-07 00:17:21.409 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10918ms)，等待语义VAD判断
+2026-03-07 00:17:21.409 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10919ms)，等待语义VAD判断
+2026-03-07 00:17:21.409 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10919ms)，等待语义VAD判断
+2026-03-07 00:17:21.410 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10919ms)，等待语义VAD判断
+2026-03-07 00:17:21.410 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10919ms)，等待语义VAD判断
+2026-03-07 00:17:21.410 | DEBUG    | voice_dialog.modules.acoustic_vad:process_frame:197 - 声学VAD: 检测到静音 (时长: 10920ms)，等待语义VAD判断
+2026-03-07 00:17:21.427 | ERROR    | voice_dialog.websocket_server:send_json:88 - 发送消息失败: 
+2026-03-07 00:17:21.705 | ERROR    | voice_dialog.websocket_server:websocket_endpoint:200 - WebSocket错误: Cannot call "receive" once a disconnect message has been received.
+2026-03-07 00:17:21.706 | INFO     | voice_dialog.websocket_server:disconnect:81 - 客户端断开: client_1772813815217
+2026-03-07 00:17:22.137 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '《西游记》不仅情节精彩、想象力恢弘，更蕴...' -> 90000 bytes
+2026-03-07 00:17:22.944 | DEBUG    | voice_dialog.modules.tts:_synthesize_buffer:423 - TTS转换完成: '需要我为你简述某个经典章节（比如“三打白...' -> 63360 bytes
