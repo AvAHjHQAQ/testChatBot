@@ -1,8 +1,15 @@
 # 全双工语音对话系统 v3.2
 
-一个基于 Qwen 模型的全双工语音对话系统，支持流式语音识别、流式语义VAD、有效人声判断、并行情绪识别和多轮对话。
+一个基于 Qwen 模型的全双工语音对话系统，支持流式语音识别、流式语义VAD、有效人声判断、并行情绪识别、LLM流式输出和实时TTS播报。
 
 ## 核心特性
+
+### v3.2.3 新特性
+
+- **LLM流式输出**：LLM响应实时流式显示，用户无需等待完整响应
+- **流式TTS播报**：按句子实时转换语音，边生成边播报
+- **工具调用实时检测**：在LLM流式输出时实时检测工具调用
+- **音频队列管理**：新问题开始时自动清空旧音频队列
 
 ### v3.2.1 新特性
 
@@ -32,7 +39,9 @@
                 ↓
            情绪识别（并行）
                 ↓
-           LLM任务规划 → 工具调用 → TTS语音合成 → 播放
+           LLM流式输出 → 按句子TTS转换 → 实时播报
+                ↓
+           工具调用（实时检测） → 工具执行 → 结果总结
                 ↓
            时延追踪（全程监控）
 ```
@@ -89,22 +98,22 @@ vedio/
 │       │   ├── state_machine.py # 状态机
 │       │   ├── logger.py       # 日志工具（支持文件输出）
 │       │   ├── tool_registry.py # 工具注册中心
-│       │   └── latency.py      # 时延追踪模块 (v3.2新增)
+│       │   └── latency.py      # 时延追踪模块
 │       ├── modules/            # 功能模块
 │       │   ├── acoustic_vad.py # 声学VAD
 │       │   ├── qwen_asr.py     # 流式ASR
 │       │   ├── semantic_vad.py # 语义VAD + 有效人声判断
 │       │   ├── emotion.py      # 情绪识别
-│       │   ├── llm_planner.py  # LLM任务规划
+│       │   ├── llm_planner.py  # LLM任务规划（支持流式输出）
 │       │   ├── tools.py        # 工具引擎
-│       │   ├── tts.py          # 语音合成
+│       │   ├── tts.py          # 语音合成 + 流式TTS处理器
 │       │   └── qwen_omni.py    # Qwen Omni处理器
 │       ├── system.py           # 核心系统 v3.2
 │       └── websocket_server.py # WebSocket服务器
 ├── web/
-│   ├── index.html              # Web前端
-│   ├── latency_monitor.html    # 时延监控界面 (v3.2新增)
-│   └── interrupt_test.html     # 打断测试界面 (v3.2新增)
+│   ├── index.html              # Web前端（支持流式显示）
+│   ├── latency_monitor.html    # 时延监控界面
+│   └── interrupt_test.html     # 打断测试界面
 ├── tests/                      # 测试用例
 │   ├── test_cases_interrupt.md # 打断测试用例文档
 │   ├── test_interrupt_suite.py # 打断时延测试套件
@@ -143,11 +152,17 @@ EMOTION:
 # LLM配置
 LLM:
   model: "qwen-plus"
+  tools:
+    enabled: true
+  generation:
+    temperature: 0.7
+    max_tokens: 1024
 
 # TTS配置
 TTS:
   provider: "edge"
   voice: "zh-CN-XiaoxiaoNeural"
+  rate: "+0%"
 
 # 声学VAD配置
 ACOUSTIC_VAD:
@@ -161,6 +176,37 @@ SERVER:
   host: "0.0.0.0"
   port: 8765
 ```
+
+## LLM流式输出与TTS播报 (v3.2.3)
+
+### 流式输出流程
+
+```
+LLM流式输出文本
+       │
+       ├── 文本块发送到前端显示
+       │
+       └── 文本块发送到 StreamingTTSProcessor
+              │
+              ├── 检测到句子结束符？──→ 立即TTS转换
+              │
+              └── 积累达到最大长度？──→ TTS转换
+                      │
+                      ▼
+              音频块发送到前端播放
+```
+
+### TTS分段策略
+
+- **句子结束符**：遇到 `。！？；\n` 立即转换
+- **最大长度**：积累到80字符后转换
+- **最小长度**：至少5字符才转换
+
+### 音频队列管理
+
+- 新问题开始时自动清空旧音频队列
+- 打断时停止当前播放并清空队列
+- 支持音频块连续播放
 
 ## TTS文本预处理 (v3.2.1)
 
@@ -241,6 +287,7 @@ python tests/test_interrupt_websocket.py
 | 打断响应时间 | < 500ms | < 1ms | 从有效人声判断到TTS停止 |
 | ASR帧长 | 20ms | 20ms | 平衡延迟与准确率 |
 | 声学VAD阈值 | 400ms | 400ms | 快速响应 |
+| LLM首字输出 | < 300ms | - | 从请求到首个输出 |
 
 ## API接口
 
@@ -261,7 +308,10 @@ ws://localhost:8765/ws/{client_id}
 | result | 后端→前端 | 对话结果 |
 | state_change | 后端→前端 | 状态变化 |
 | partial_asr | 后端→前端 | ASR部分结果 |
-| latency_update | 后端→前端 | 时延更新 (v3.2新增) |
+| llm_chunk | 后端→前端 | LLM流式输出块 (v3.2.3新增) |
+| audio_chunk | 后端→前端 | TTS音频块 (v3.2.3新增) |
+| clear_audio | 后端→前端 | 清空音频队列 (v3.2.3新增) |
+| latency_update | 后端→前端 | 时延更新 |
 | tool_executing | 后端→前端 | 工具执行状态 |
 
 ### HTTP 端点
@@ -284,7 +334,7 @@ ws://localhost:8765/ws/{client_id}
 | Web框架 | FastAPI + Uvicorn |
 | 实时通信 | WebSocket |
 | ASR模型 | Qwen ASR 17B (Paraformer) |
-| 语义VAD | Qwen3-Omni-Flash |
+| 语义VAD | Qwen-Plus (文本语义分析) |
 | 情绪识别 | Qwen3-Omni-Flash |
 | LLM | Qwen-Plus |
 | TTS | Edge TTS |
