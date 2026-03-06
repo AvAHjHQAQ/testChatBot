@@ -1,8 +1,54 @@
-__pycache__/
-*.pyc
-*.log
-logs/*.log
-__pycache__/
-*.pyc
-*.log
+# 环境变量
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 日志
+logs/*.log
+*.log
+
+# 测试缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 临时文件
+*.tmp
+*.temp
+temp_repo/
+
+# Claude Code
+.claude/
