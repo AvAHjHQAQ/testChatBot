@@ -109,6 +109,23 @@ class Config:
             "interrupt": {
                 "enabled": True
             }
+        },
+        "TAVILY": {
+            "api_key": "",
+            "search_depth": "basic",
+            "include_answer": True,
+            "max_results": 5
+        },
+        "AMAP": {
+            "api_key": "",
+            "enabled": False
+        },
+        "COMPANION": {
+            "enabled": True,
+            "style": "warm",
+            "max_response_length": 100,
+            "optimal_response_length": 40,
+            "emotion_response": True
         }
     }
 
@@ -272,6 +289,21 @@ class Config:
     def system(self) -> Dict:
         """系统配置"""
         return self._config.get("SYSTEM", {})
+
+    @property
+    def tavily(self) -> Dict:
+        """Tavily搜索API配置"""
+        return self._config.get("TAVILY", {})
+
+    @property
+    def amap(self) -> Dict:
+        """高德地图API配置"""
+        return self._config.get("AMAP", {})
+
+    @property
+    def companion(self) -> Dict:
+        """情感陪聊配置"""
+        return self._config.get("COMPANION", {})
 
     # 兼容旧属性名
     @property

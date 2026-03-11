@@ -135,3 +135,25 @@ SYSTEM:
   logging:
     level: "INFO"
     file: "logs/dialog.log"
+
+# Tavily 搜索 API 配置
+# 用于网络搜索工具
+TAVILY:
+  api_key: "${TAVILY_API_KEY}"
+  search_depth: "basic"  # basic 或 advanced
+  include_answer: true   # 包含AI生成的答案摘要
+  max_results: 5
+
+# 高德地图 API 配置
+# 用于位置搜索和天气查询
+AMAP:
+  api_key: "${AMAP_API_KEY}"
+  enabled: true
+
+# 情感陪聊配置
+COMPANION:
+  enabled: true
+  style: "warm"  # warm, professional, playful
+  max_response_length: 100  # 最大回复字数
+  optimal_response_length: 40  # 最佳回复字数
+  emotion_response: true  # 是否启用情绪回应

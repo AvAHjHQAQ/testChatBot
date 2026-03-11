@@ -61,36 +61,97 @@ class LLMTaskPlanner:
     支持流式输出
     """
 
-    SYSTEM_PROMPT_TEMPLATE = """你是一个智能语音助手，具备以下能力：
-1. 理解用户意图并给出自然、友好的回应
-2. 在需要时调用工具完成任务
-3. 根据用户情绪调整回应方式
-4. 记住对话上下文，支持多轮对话
+    # 情感陪聊风格 System Prompt
+    SYSTEM_PROMPT_TEMPLATE = """你是一个温暖的情感陪伴助手，你的名字叫"小伴"。
 
-当前环境信息：
-- 当前时间：{current_time}
-- 当前位置：{current_location}
+【你是谁】
+你不是冷冰冰的AI助手，而是一个懂倾听、会共情的朋友。你善于理解用户的情绪，并给出温暖的回应。
 
-你可以使用以下工具：
+{emotion_context}
+
+【说话风格】
+- 简洁：40字左右最佳，最多不超过100字，适合语音播报
+- 自然：口语化表达，像朋友聊天一样
+- 温暖：适时表达关心和理解
+- 真实：可以说"嗯"、"好的呢"、"嗯嗯"等口语词
+
+【当前环境】
+- 时间：{current_time}
+- 位置：{current_location}
+
+【可用工具】
 {tools_description}
 
-重要规则：
-1. 当用户请求需要工具才能完成时，调用相应工具
-2. 你已经知道当前时间，不需要再调用get_current_time工具来回答时间问题
-3. 记住用户之前提到的信息，支持上下文对话
-4. 如果用户使用代词（"它"、"那里"等），根据上下文理解指代对象
-5. 当用户询问天气、空气质量等需要位置的服务时，如果用户没有明确说明地址，请礼貌地询问用户的具体位置
-6. 回答要简洁友好，适合语音播报，不要使用Markdown格式和表情符号"""
+【工具使用原则】
+1. 真正需要时才调用工具
+2. 查询结果要用自己的话简单说，不要直接念数据
+3. 如果涉及用户位置，会自动使用附近的位置信息
 
-    # 情绪适配前缀
-    EMOTION_PREFIXES = {
-        EmotionType.POSITIVE: "很高兴能帮到您！",
-        EmotionType.NEGATIVE: "我理解您的感受。",
-        EmotionType.ANGRY: "抱歉给您带来不好的体验。",
-        EmotionType.SAD: "我理解您的心情，",
-        EmotionType.SURPRISED: "确实令人惊讶！",
-        EmotionType.NEUTRAL: "",
+【回答示例】
+用户开心时："太棒啦！听起来很开心呢～"
+用户难过时："抱抱你，我在呢。说说怎么了？"
+用户生气时："别急别急，我帮你看看怎么回事"
+普通查询："好的，我帮你查一下...是这样呢..."
+"""
+
+    # 情绪回应模板（按强度分级）
+    EMOTION_RESPONSES = {
+        EmotionType.POSITIVE: {
+            "high": ["太棒啦！", "听起来好开心！", "真好呢～", "太好了！"],
+            "medium": ["不错不错！", "挺好的！", "真棒！"],
+            "low": ["嗯嗯，挺好的", "不错呢"]
+        },
+        EmotionType.NEGATIVE: {
+            "high": ["我理解你的感受，我在呢", "确实挺让人沮丧的", "别难过，有我陪着你"],
+            "medium": ["没事的，会好起来的", "别太担心", "我懂这种感觉"],
+            "low": ["嗯，我懂", "没事的"]
+        },
+        EmotionType.ANGRY: {
+            "high": ["消消气，我在这陪你", "先别急，我们慢慢说", "我理解你的心情"],
+            "medium": ["别着急，我帮你看看", "理解你的心情", "别急别急"],
+            "low": ["嗯，确实挺烦的", "理解"]
+        },
+        EmotionType.SAD: {
+            "high": ["抱抱你，想说说吗？", "我在呢，不难过", "想聊聊吗？我在听"],
+            "medium": ["没事的，有我陪着你", "别难过，我在呢", "抱抱你"],
+            "low": ["嗯，我懂这种感觉", "我在呢"]
+        },
+        EmotionType.SURPRISED: {
+            "high": ["哇！真的吗！", "太神奇了！", "不会吧！真的假的！"],
+            "medium": ["挺意外的呢", "没想到吧～", "哇哦！"],
+            "low": ["嗯，有点惊喜", "挺有意思的"]
+        },
+        EmotionType.NEUTRAL: {
+            "high": ["好的呢", "嗯嗯", "好的好的"],
+            "medium": ["好的", "嗯", "好的呢"],
+            "low": ["嗯", "好"]
+        }
     }
+
+    # 情绪上下文模板
+    EMOTION_CONTEXTS = {
+        EmotionType.POSITIVE: "用户现在心情不错，你可以用轻松愉快的语气回应，分享ta的喜悦。",
+        EmotionType.NEGATIVE: "用户情绪有些低落，请用温和关心的语气回应，表达理解和支持。",
+        EmotionType.ANGRY: "用户现在有些烦躁，请先安抚情绪，语气温和，再帮ta解决问题。",
+        EmotionType.SAD: "用户现在心情难过，请表达关心和理解，让ta感到被陪伴。",
+        EmotionType.SURPRISED: "用户感到惊喜，你可以一起感受这份惊喜，保持好奇。",
+        EmotionType.NEUTRAL: "用户情绪平和，正常交流即可。",
+    }
+
+    def _get_emotion_response(self, emotion: EmotionType, intensity: float) -> str:
+        """根据情绪和强度获取回应前缀"""
+        import random
+        level = "high" if intensity > 0.7 else "medium" if intensity > 0.4 else "low"
+        responses = self.EMOTION_RESPONSES.get(emotion, {}).get(level, [""])
+        return random.choice(responses)
+
+    def _build_emotion_context(self, emotion: EmotionType, intensity: float) -> str:
+        """构建情绪上下文提示"""
+        base_context = self.EMOTION_CONTEXTS.get(emotion, "")
+        if base_context:
+            intensity_percent = int(intensity * 100)
+            return f"【用户情绪】\n{base_context}（强度：{intensity_percent}%）"
+        return ""
 
     def __init__(self):
         self.config = get_config().llm
@@ -145,10 +206,16 @@ class LLMTaskPlanner:
             current_time = f"{now.strftime('%Y年%m月%d日')} {weekday_names[now.weekday()]} {now.strftime('%H:%M')}"
             current_location = "上海"  # 默认位置
 
+            # 构建情绪上下文
+            emotion_context = ""
+            if self.config.get("emotion_context", {}).get("enabled", True):
+                emotion_context = self._build_emotion_context(llm_input.emotion, llm_input.emotion_intensity)
+
             # 从 ToolRegistry 获取工具
             tools = await self._get_tools()
             tools_description = self._get_tools_description()
             system_prompt = self.SYSTEM_PROMPT_TEMPLATE.format(
+                emotion_context=emotion_context,
                 tools_description=tools_description,
                 current_time=current_time,
                 current_location=current_location
@@ -182,11 +249,11 @@ class LLMTaskPlanner:
             # 构建响应
             response_text = message.content or ""
 
-            # 情绪适配
+            # 情绪适配 - 使用新的情绪回应方式
             if self.config.get("emotion_context", {}).get("enabled", True):
-                prefix = self.EMOTION_PREFIXES.get(llm_input.emotion, "")
-                if prefix and not response_text.startswith(prefix):
-                    response_text = prefix + response_text
+                emotion_prefix = self._get_emotion_response(llm_input.emotion, llm_input.emotion_intensity)
+                if emotion_prefix and not response_text.startswith(emotion_prefix):
+                    response_text = emotion_prefix + " " + response_text
 
             return LLMResponse(
                 text=response_text,
@@ -231,10 +298,16 @@ class LLMTaskPlanner:
             # 获取并缓存当前时间
             await self._update_current_time()
 
+            # 构建情绪上下文
+            emotion_context = ""
+            if self.config.get("emotion_context", {}).get("enabled", True):
+                emotion_context = self._build_emotion_context(llm_input.emotion, llm_input.emotion_intensity)
+
             # 从 ToolRegistry 获取工具
             tools = await self._get_tools()
             tools_description = self._get_tools_description()
             system_prompt = self.SYSTEM_PROMPT_TEMPLATE.format(
+                emotion_context=emotion_context,
                 tools_description=tools_description,
                 current_time=self._current_time,
                 current_location=self.context.get("location", "上海")
@@ -326,9 +399,9 @@ class LLMTaskPlanner:
             # 这里我们在最终响应中添加前缀用于TTS
             final_text = response_text
             if self.config.get("emotion_context", {}).get("enabled", True):
-                prefix = self.EMOTION_PREFIXES.get(llm_input.emotion, "")
-                if prefix and not response_text.startswith(prefix):
-                    final_text = prefix + response_text
+                emotion_prefix = self._get_emotion_response(llm_input.emotion, llm_input.emotion_intensity)
+                if emotion_prefix and not response_text.startswith(emotion_prefix):
+                    final_text = emotion_prefix + " " + response_text
 
             return LLMResponse(
                 text=final_text,
@@ -356,11 +429,8 @@ class LLMTaskPlanner:
         for msg in self.conversation_history[-10:]:  # 保留最近10条
             messages.append(msg.to_openai_format())
 
-        # 构建用户消息（包含情绪上下文）
+        # 构建用户消息
         user_content = llm_input.text
-        if self.config.get("emotion_context", {}).get("enabled", True):
-            emotion_info = f"\n[用户情绪: {llm_input.emotion.value}, 强度: {llm_input.emotion_intensity:.1f}]"
-            user_content += emotion_info
 
         messages.append({"role": "user", "content": user_content})
 
@@ -719,6 +789,22 @@ class LLMTaskPlanner:
                     action = data.get("action", "操作")
                     responses.append(f"已为您{action}{device}")
 
+                elif tool_name == "search_web" and "search_web" not in seen_tools:
+                    seen_tools.add("search_web")
+                    data = result.result
+                    answer = data.get("answer", "")
+                    if answer:
+                        responses.append(answer)
+                    elif data.get("results"):
+                        responses.append(f"找到关于「{data.get('query', '')}」的相关信息")
+
+                elif tool_name == "search_location" and "search_location" not in seen_tools:
+                    seen_tools.add("search_location")
+                    data = result.result
+                    if data.get("results"):
+                        locations = "、".join([r.get("name", "") for r in data.get("results", [])[:2]])
+                        responses.append(f"找到地点：{locations}")
+
             if responses:
                 return "好的，" + "。".join(responses) + "。"
             return "操作已完成。"
@@ -762,13 +848,26 @@ class LLMTaskPlanner:
 
         elif tool_name == "search_web":
             data = result.result
+            # 如果有 Tavily 返回的 AI 答案，直接使用
+            answer = data.get("answer", "")
+            if answer:
+                return f"好的，{answer}"
+            # 否则显示搜索结果
             results = data.get("results", [])
             if results:
-                summary = f"关于「{data.get('query', '')}」找到{len(results)}条结果："
+                summary = f"关于「{data.get('query', '')}」找到了一些信息："
                 for i, r in enumerate(results[:2]):
                     summary += f"\n{i+1}. {r.get('title', '')}"
                 return summary
             return f"未找到关于「{data.get('query', '')}」的相关结果"
+
+        elif tool_name == "search_location":
+            data = result.result
+            results = data.get("results", [])
+            if results:
+                locations = "、".join([r.get("name", "") for r in results[:3]])
+                return f"找到以下地点：{locations}。"
+            return f"未找到相关地点"
 
         else:
             return "好的，已完成您的请求。"

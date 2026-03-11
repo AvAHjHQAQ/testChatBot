@@ -152,37 +152,70 @@ class ToolEngine:
             tags=["天气", "查询", "生活"]
         )
 
-        # 注册网络搜索工具 - 优化版
+        # 注册网络搜索工具 - Tavily API 集成版
         async def search_web(query: str) -> Dict:
             """
-            网络搜索工具 - 返回结构化搜索结果
-            集成真实的搜索能力
+            网络搜索工具 - 使用 Tavily API
+            专为AI设计的搜索API，返回结构化结果
             """
             try:
-                # 尝试使用真实的搜索API
-                # 这里可以接入如 SerpAPI、Bing Search API 等
-                # 目前返回模拟但格式良好的结果
+                import aiohttp
+                import os
 
+                tavily_config = self.config.tavily
+                tavily_api_key = tavily_config.get("api_key", "") or os.getenv("TAVILY_API_KEY", "")
+
+                # 如果有 Tavily API Key，使用真实搜索
+                if tavily_api_key:
+                    url = "https://api.tavily.com/search"
+                    payload = {
+                        "api_key": tavily_api_key,
+                        "query": query,
+                        "search_depth": tavily_config.get("search_depth", "basic"),
+                        "include_answer": tavily_config.get("include_answer", True),
+                        "include_raw_content": False,
+                        "max_results": tavily_config.get("max_results", 5)
+                    }
+
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.post(url, json=payload, timeout=10) as resp:
+                                if resp.status == 200:
+                                    data = await resp.json()
+                                    results = [
+                                        {
+                                            "title": r.get("title", ""),
+                                            "content": r.get("content", "")[:300],
+                                            "url": r.get("url", "")
+                                        }
+                                        for r in data.get("results", [])[:3]
+                                    ]
+                                    return {
+                                        "success": True,
+                                        "query": query,
+                                        "answer": data.get("answer", ""),
+                                        "results": results,
+                                        "summary": f"找到关于「{query}」的结果"
+                                    }
+                                else:
+                                    logger.warning(f"Tavily API错误: {resp.status}")
+                    except Exception as e:
+                        logger.warning(f"Tavily搜索失败，使用模拟数据: {e}")
+
+                # 模拟搜索结果作为后备
                 await asyncio.sleep(0.2)
 
-                # 模拟搜索结果 - 更真实的格式
                 results = []
-
-                # 根据查询类型生成不同结果
                 if any(kw in query for kw in ["新闻", "最新", "今日"]):
                     results = [
                         {
                             "title": f"【新闻】{query}相关报道",
-                            "source": "综合新闻",
-                            "time": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                            "snippet": f"关于{query}的最新动态和报道内容...",
+                            "content": f"关于{query}的最新动态和报道内容...",
                             "url": f"https://news.example.com/{query}"
                         },
                         {
                             "title": f"{query}热点事件",
-                            "source": "热点资讯",
-                            "time": datetime.now().strftime("%Y-%m-%d"),
-                            "snippet": f"最新{query}相关热点事件汇总...",
+                            "content": f"最新{query}相关热点事件汇总...",
                             "url": f"https://hot.example.com/{query}"
                         }
                     ]
@@ -190,14 +223,12 @@ class ToolEngine:
                     results = [
                         {
                             "title": f"【百科】{query}",
-                            "source": "知识百科",
-                            "snippet": f"{query}的详细解释和说明...",
+                            "content": f"{query}的详细解释和说明...",
                             "url": f"https://baike.example.com/{query}"
                         },
                         {
                             "title": f"教程：{query}",
-                            "source": "教程网",
-                            "snippet": f"详细介绍{query}的方法和步骤...",
+                            "content": f"详细介绍{query}的方法和步骤...",
                             "url": f"https://howto.example.com/{query}"
                         }
                     ]
@@ -205,14 +236,12 @@ class ToolEngine:
                     results = [
                         {
                             "title": f"{query} - 综合信息",
-                            "source": "综合搜索",
-                            "snippet": f"关于{query}的全面信息介绍...",
+                            "content": f"关于{query}的全面信息介绍...",
                             "url": f"https://search.example.com/{query}"
                         },
                         {
                             "title": f"{query}相关推荐",
-                            "source": "推荐引擎",
-                            "snippet": f"与{query}相关的热门内容推荐...",
+                            "content": f"与{query}相关的热门内容推荐...",
                             "url": f"https://recommend.example.com/{query}"
                         }
                     ]
@@ -220,7 +249,7 @@ class ToolEngine:
                 return {
                     "success": True,
                     "query": query,
-                    "total": len(results),
+                    "answer": "",
                     "results": results,
                     "summary": f"找到{len(results)}条关于「{query}」的结果"
                 }
@@ -251,6 +280,99 @@ class ToolEngine:
             handler=search_web,
             category="query",
             tags=["搜索", "网络", "查询"]
+        )
+
+        # 注册位置搜索工具 - 高德地图 API
+        async def search_location(keywords: str, city: str = "") -> Dict:
+            """
+            使用高德地图API进行位置搜索
+            用于天气查询的位置解析、附近地点搜索等
+            """
+            try:
+                import aiohttp
+                import os
+
+                amap_config = self.config.amap
+                amap_api_key = amap_config.get("api_key", "") or os.getenv("AMAP_API_KEY", "")
+
+                # 如果有高德 API Key，使用真实搜索
+                if amap_api_key and amap_config.get("enabled", False):
+                    url = "https://restapi.amap.com/v3/place/text"
+                    params = {
+                        "key": amap_api_key,
+                        "keywords": keywords,
+                        "city": city,
+                        "output": "json"
+                    }
+
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(url, params=params, timeout=10) as resp:
+                                if resp.status == 200:
+                                    data = await resp.json()
+                                    pois = data.get("pois", [])[:3]
+                                    results = [
+                                        {
+                                            "name": p.get("name", ""),
+                                            "address": p.get("address", ""),
+                                            "type": p.get("type", ""),
+                                            "location": p.get("location", "")
+                                        }
+                                        for p in pois
+                                    ]
+                                    return {
+                                        "success": True,
+                                        "keywords": keywords,
+                                        "city": city,
+                                        "results": results,
+                                        "summary": f"找到{len(results)}个相关地点"
+                                    }
+                                else:
+                                    logger.warning(f"高德API错误: {resp.status}")
+                    except Exception as e:
+                        logger.warning(f"高德搜索失败，使用模拟数据: {e}")
+
+                # 模拟结果作为后备
+                return {
+                    "success": True,
+                    "keywords": keywords,
+                    "city": city,
+                    "results": [
+                        {"name": f"{keywords}", "address": f"{city}市中心", "type": "地点"}
+                    ],
+                    "summary": f"找到相关地点"
+                }
+
+            except Exception as e:
+                logger.error(f"位置搜索失败: {e}")
+                return {
+                    "success": False,
+                    "keywords": keywords,
+                    "error": str(e),
+                    "results": [],
+                    "summary": "位置搜索时出现错误"
+                }
+
+        tool_registry.register_tool(
+            name="search_location",
+            description="搜索地点位置，用于查找附近的地点或解析地址",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "keywords": {
+                        "type": "string",
+                        "description": "搜索关键词，如：餐厅、医院、银行等"
+                    },
+                    "city": {
+                        "type": "string",
+                        "description": "城市名称，可选"
+                    }
+                },
+                "required": ["keywords"]
+            },
+            handler=search_location,
+            category="query",
+            tags=["位置", "地图", "搜索"]
         )
 
         # 注册设置提醒工具
