@@ -254,6 +254,45 @@ class VoiceDialogSystem:
                     logger.info("[打断] 超时无有效内容，恢复播放")
                     self._cancel_interrupt_confirmation()
 
+            # ========== v3.7: 打断确认模式下也需要检测静音 ==========
+            # 如果已经确认是有效人声（TTS已停止），需要检测静音来判断用户是否说完
+            if self._tts_stopped_for_interrupt:
+                # 使用声学VAD检测静音
+                vad_result = await self.acoustic_vad.process_chunk(audio_chunk)
+
+                if vad_result["event"] == "silence_detected":
+                    if self._silence_start_time is None:
+                        self._silence_start_time = current_time
+
+                    silence_elapsed = current_time - self._silence_start_time
+
+                    # 判断是否应该结束语音段
+                    should_finalize = False
+                    finalize_reason = ""
+
+                    # 条件1: 语义VAD判断完整
+                    if self.semantic_vad.processor.is_complete():
+                        should_finalize = True
+                        finalize_reason = "语义完整"
+
+                    # 条件2: 静音时间超过阈值且有ASR文本
+                    elif silence_elapsed >= self.MAX_SILENCE_WAIT_MS and self._asr_text_buffer:
+                        should_finalize = True
+                        finalize_reason = f"静音超时({silence_elapsed:.0f}ms)"
+
+                    # 条件3: 有足够文本且静音超过500ms
+                    elif silence_elapsed >= self.SILENCE_THRESHOLD_MS and len(self._asr_text_buffer) >= 5:
+                        should_finalize = True
+                        finalize_reason = "静音+文本充足"
+
+                    if should_finalize:
+                        logger.info(f"[打断] 用户说完话，进入LLM处理: {finalize_reason}, 文本: '{self._asr_text_buffer}'")
+                        return await self._finalize_interrupt_to_llm()
+
+                elif vad_result["event"] == "speech_active":
+                    # 用户还在说话，重置静音计时
+                    self._silence_start_time = None
+
             return None
 
         # ========== 2. SPEAKING/THINKING状态下检测打断 ==========
@@ -349,6 +388,7 @@ class VoiceDialogSystem:
         self._interrupt_start_time = time.time() * 1000
         self._tts_stopped_for_interrupt = False
         self._asr_text_buffer = ""
+        self._silence_start_time = None  # v3.7: 重置静音计时器
 
         # 启动流式处理（打断模式）
         await self._start_streaming(interrupt_mode=True)
