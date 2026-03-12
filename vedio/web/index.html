@@ -611,9 +611,13 @@
                 console.log('[音频] 当前音频已暂停并重置');
             }
 
-            // 清空音频队列，防止继续播放
-            audioQueue = [];
-            console.log('[音频] 音频队列已清空');
+            // v3.6修复: 将音频队列保存到暂停缓存，而不是直接清空
+            // 这样恢复播放时可以继续播放这些音频
+            if (audioQueue.length > 0) {
+                pausedAudioQueue = pausedAudioQueue.concat(audioQueue);
+                console.log('[音频] 音频队列已保存到暂停缓存, 缓存长度:', pausedAudioQueue.length);
+                audioQueue = [];
+            }
         }
 
         // v3.6: 恢复音频播放（语义VAD判断为非有效人声时调用）
