@@ -506,6 +506,13 @@
 
         // 播放下一个音频块
         function playNextAudioChunk() {
+            // v3.6: 检查是否暂停中
+            if (isAudioPaused) {
+                console.log('[音频] 暂停中，不播放新音频');
+                isPlayingAudio = false;
+                return;
+            }
+
             // 检查队列
             if (audioQueue.length === 0) {
                 isPlayingAudio = false;
@@ -527,6 +534,11 @@
             audio.onended = function() {
                 console.log('[音频] 播放结束');
                 currentAudio = null;
+                // v3.6: 检查是否暂停中
+                if (isAudioPaused) {
+                    isPlayingAudio = false;
+                    return;
+                }
                 // 检查是否还有下一个
                 if (audioQueue.length > 0) {
                     playNextAudioChunk();
@@ -538,6 +550,11 @@
             audio.onerror = function(e) {
                 console.error('[音频] 播放错误:', e);
                 currentAudio = null;
+                // v3.6: 检查是否暂停中
+                if (isAudioPaused) {
+                    isPlayingAudio = false;
+                    return;
+                }
                 // 继续播放下一个
                 if (audioQueue.length > 0) {
                     playNextAudioChunk();
@@ -549,6 +566,11 @@
             audio.play().catch(e => {
                 console.error('[音频] 播放失败:', e);
                 currentAudio = null;
+                // v3.6: 检查是否暂停中
+                if (isAudioPaused) {
+                    isPlayingAudio = false;
+                    return;
+                }
                 // 继续播放下一个
                 if (audioQueue.length > 0) {
                     playNextAudioChunk();
@@ -580,11 +602,18 @@
             console.log('[音频] 暂停播放');
             isAudioPaused = true;
 
-            // 暂停当前播放的音频
+            // 立即停止当前播放的音频
             if (currentAudio) {
+                // 先暂停
                 currentAudio.pause();
-                console.log('[音频] 当前音频已暂停');
+                // 重置播放位置，确保下次恢复时从头开始
+                currentAudio.currentTime = 0;
+                console.log('[音频] 当前音频已暂停并重置');
             }
+
+            // 清空音频队列，防止继续播放
+            audioQueue = [];
+            console.log('[音频] 音频队列已清空');
         }
 
         // v3.6: 恢复音频播放（语义VAD判断为非有效人声时调用）
@@ -599,17 +628,10 @@
                 pausedAudioQueue = [];
             }
 
-            // 恢复当前音频播放
-            if (currentAudio) {
-                currentAudio.play().catch(e => {
-                    console.error('[音频] 恢复播放失败:', e);
-                    // 如果恢复失败，尝试播放下一个
-                    playNextAudioChunk();
-                });
-                console.log('[音频] 当前音频已恢复');
-            } else if (audioQueue.length > 0 && !isPlayingAudio) {
-                // 如果没有当前音频但有队列，开始播放
+            // 如果有音频队列，开始播放
+            if (audioQueue.length > 0 && !isPlayingAudio) {
                 playNextAudioChunk();
+                console.log('[音频] 开始播放队列中的音频');
             }
         }
 
