@@ -459,6 +459,14 @@
                     stopAudioPlayback();
                     console.log('[音频流] 已清空音频队列');
                     break;
+                case 'pause':
+                    // v3.6: 声学VAD检测到用户说话，暂停显示和播放
+                    handlePause();
+                    break;
+                case 'resume':
+                    // v3.6: 语义VAD判断为无效信息，恢复显示和播放
+                    handleResume();
+                    break;
                 case 'pong':
                     break;
             }
@@ -473,8 +481,20 @@
         let isPlayingAudio = false;
         let currentAudio = null;
 
+        // v3.6: 暂停/恢复状态
+        let isPaused = false;
+        let pausedAudioQueue = [];  // 暂停期间缓存的音频
+        let pausedLlmContent = '';  // 暂停期间缓存的LLM内容
+
         // 处理TTS音频块（实时播报）
         function handleAudioChunk(base64Audio) {
+            // v3.6: 如果暂停中，缓存音频而不是播放
+            if (isPaused) {
+                pausedAudioQueue.push(base64Audio);
+                console.log('[暂停] 缓存音频块, 缓存长度:', pausedAudioQueue.length);
+                return;
+            }
+
             // 将音频块加入队列
             audioQueue.push(base64Audio);
             console.log('[音频] 加入队列, 队列长度:', audioQueue.length, '播放中:', isPlayingAudio);
@@ -554,8 +574,89 @@
             isPlayingAudio = false;
         }
 
+        // v3.6: 处理暂停（声学VAD检测到用户说话时）
+        function handlePause() {
+            console.log('[暂停] 声学VAD检测到用户说话，暂停显示和播放');
+            isPaused = true;
+            pausedAudioQueue = [];
+            pausedLlmContent = '';
+
+            // 暂停当前音频播放
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+
+            // 更新状态显示
+            updatePartialText('检测到用户说话，暂停中...');
+        }
+
+        // v3.6: 处理恢复（语义VAD判断为无效信息时）
+        function handleResume() {
+            console.log('[恢复] 语义VAD判断为无效信息，恢复显示和播放');
+            isPaused = false;
+
+            // 恢复缓存的LLM内容显示
+            if (pausedLlmContent) {
+                console.log('[恢复] 恢复缓存的LLM内容:', pausedLlmContent.length, '字符');
+                // 如果是第一个块，创建新的消息元素
+                if (!streamingMessageId) {
+                    const chatContainer = document.getElementById('chatContainer');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message assistant';
+                    messageDiv.id = 'streaming-message';
+                    messageDiv.innerHTML = '<div class="message-bubble"></div><div class="message-meta"><span>' + new Date().toLocaleTimeString() + '</span></div>';
+                    chatContainer.appendChild(messageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    streamingMessageId = 'streaming-message';
+                    streamingContent = '';
+                }
+
+                // 累积内容
+                streamingContent += pausedLlmContent;
+
+                // 更新显示
+                const messageDiv = document.getElementById(streamingMessageId);
+                if (messageDiv) {
+                    const bubble = messageDiv.querySelector('.message-bubble');
+                    if (bubble) {
+                        bubble.textContent = streamingContent;
+                    }
+                    const chatContainer = document.getElementById('chatContainer');
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+
+                pausedLlmContent = '';
+            }
+
+            // 恢复缓存的音频播放
+            if (pausedAudioQueue.length > 0) {
+                console.log('[恢复] 恢复缓存的音频:', pausedAudioQueue.length, '个');
+                // 将缓存的音频加入播放队列
+                audioQueue = audioQueue.concat(pausedAudioQueue);
+                pausedAudioQueue = [];
+
+                // 如果没有在播放，开始播放
+                if (!isPlayingAudio) {
+                    playNextAudioChunk();
+                }
+            } else if (currentAudio) {
+                // 如果没有缓存的音频但有暂停的音频，恢复播放
+                currentAudio.play().catch(e => console.error('[音频] 恢复播放失败:', e));
+            }
+
+            // 更新状态显示
+            updatePartialText(streamingContent ? `回复中: ${streamingContent}` : '');
+        }
+
         // 处理LLM流式输出块
         function handleLLMChunk(chunk) {
+            // v3.6: 如果暂停中，缓存内容而不是显示
+            if (isPaused) {
+                pausedLlmContent += chunk;
+                console.log('[暂停] 缓存LLM内容, 当前缓存长度:', pausedLlmContent.length);
+                return;
+            }
+
             // 如果是第一个块，创建新的消息元素
             if (!streamingMessageId) {
                 const chatContainer = document.getElementById('chatContainer');

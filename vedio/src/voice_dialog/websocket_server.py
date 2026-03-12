@@ -77,6 +77,14 @@ class ConnectionManager:
         system.on_clear_audio(lambda: asyncio.create_task(
             self.send_clear_audio(client_id)
         ))
+        # 注册暂停回调（声学VAD检测到用户说话时）
+        system.on_pause(lambda: asyncio.create_task(
+            self.send_pause(client_id)
+        ))
+        # 注册恢复回调（语义VAD判断为无效信息时）
+        system.on_resume(lambda: asyncio.create_task(
+            self.send_resume(client_id)
+        ))
 
         logger.info(f"客户端连接: {client_id}")
 
@@ -234,6 +242,20 @@ class ConnectionManager:
             "type": "clear_audio"
         })
         logger.info(f"[音频流] 已通知前端清空音频队列: {client_id}")
+
+    async def send_pause(self, client_id: str):
+        """发送暂停消息（声学VAD检测到用户说话时）"""
+        await self.send_json(client_id, {
+            "type": "pause"
+        })
+        logger.info(f"[暂停] 已通知前端暂停显示/播放: {client_id}")
+
+    async def send_resume(self, client_id: str):
+        """发送恢复消息（语义VAD判断为无效信息时）"""
+        await self.send_json(client_id, {
+            "type": "resume"
+        })
+        logger.info(f"[恢复] 已通知前端恢复显示/播放: {client_id}")
 
     async def send_tool_executing(self, client_id: str, tool_name: str, tool_args: dict):
         """发送工具执行状态"""

@@ -128,6 +128,13 @@ class VoiceDialogSystem:
         self._audio_sequence = 0  # 音频序列号，确保播放顺序
         self._pending_audio_queue: List[tuple] = []  # 待发送的音频队列 (序列号, 音频数据)
 
+        # ========== v3.6 暂停/恢复机制 ==========
+        self._is_paused = False  # 是否暂停发送给前端
+        self._paused_llm_chunks: List[str] = []  # 暂停期间缓存的LLM文本块
+        self._paused_audio_chunks: List[bytes] = []  # 暂停期间缓存的音频块
+        self._on_pause_callbacks: List[Callable] = []  # 暂停回调
+        self._on_resume_callbacks: List[Callable] = []  # 恢复回调
+
         # ========== v3.5 并发模型改进 ==========
         self._audio_queue: asyncio.Queue = asyncio.Queue()  # 音频输入队列
         self._audio_processor_task: Optional[asyncio.Task] = None  # 音频处理后台任务
@@ -235,9 +242,9 @@ class VoiceDialogSystem:
                 return await self._finalize_interrupt_to_llm()
 
             elif interrupt_result in ["filler", "noise"]:
-                # 非有效人声（咳嗽、嗯等），取消打断，继续播报
-                logger.info(f"[打断] 非有效人声，取消打断，继续播报")
-                self._cancel_interrupt_confirmation()
+                # 非有效人声（咳嗽、嗯等），恢复前端显示和播放
+                logger.info(f"[打断] 非有效人声，恢复前端显示/播放")
+                await self._resume_frontend()
 
             elif interrupt_result == "timeout":
                 # 超时，检查是否有有效内容
@@ -246,9 +253,9 @@ class VoiceDialogSystem:
                     logger.info(f"[打断] 超时但有内容，进入LLM: '{self._asr_text_buffer}'")
                     return await self._finalize_interrupt_to_llm()
                 else:
-                    # 无有效内容，取消打断，继续播报
-                    logger.info("[打断] 超时无有效内容，取消打断，继续播报")
-                    self._cancel_interrupt_confirmation()
+                    # 无有效内容，恢复前端显示和播放
+                    logger.info("[打断] 超时无有效内容，恢复前端显示/播放")
+                    await self._resume_frontend()
 
             return None
 
@@ -328,17 +335,17 @@ class VoiceDialogSystem:
         """
         启动打断确认模式
 
-        v3.5: THINKING 和 SPEAKING 状态都等待语义VAD确认后才停止TTS
-        - 声学VAD只是触发确认模式，不直接停止
-        - 语义VAD确认有效人声后才真正停止TTS/LLM
+        v3.6: 声学VAD检测到用户说话时，暂停前端显示和播放
+        - 后端的LLM和TTS任务继续运行，只是不发送给前端
+        - 等待语义VAD判断后再决定是正式打断还是恢复
         """
         import time
 
         current_state = self.dialog_state.state
-        logger.info(f"[打断] 声学VAD检测到人声，启动语义VAD判断... (当前状态: {current_state.value})")
+        logger.info(f"[打断] 声学VAD检测到人声，暂停前端显示/播放，启动语义VAD判断... (当前状态: {current_state.value})")
 
-        # THINKING和SPEAKING状态都等待语义VAD确认
-        # 不在这里直接停止，等语义VAD判断后再决定
+        # ========== v3.6: 暂停发送给前端，但后台任务继续运行 ==========
+        await self._pause_frontend()
 
         self._interrupt_confirm_mode = True
         self._interrupt_start_time = time.time() * 1000
@@ -418,18 +425,23 @@ class VoiceDialogSystem:
         """
         停止TTS播报（语义VAD确认有效人声后调用）
 
-        v3.5: 统一处理 THINKING 和 SPEAKING 状态的打断
-        - 只有语义VAD确认有效人声后才调用此方法
+        v3.6: 语义VAD判断为有效信息时，正式打断后端的LLM和TTS任务
+        - 清空暂停期间缓存的数据
         - 停止TTS、LLM、清空音频队列
         """
         current_state = self.dialog_state.state
-        logger.info(f"[打断] 语义VAD确认有效人声，停止播报 (状态: {current_state.value})")
+        logger.info(f"[打断] 语义VAD确认有效人声，正式停止后台任务 (状态: {current_state.value})")
 
         if self._tts_stopped_for_interrupt:
             return
 
         self._tts_stopped_for_interrupt = True
         self._should_stop_llm = True  # 标记停止LLM输出
+        self._is_paused = False  # 清除暂停状态
+
+        # 清空暂停期间缓存的数据
+        self._paused_llm_chunks = []
+        self._paused_audio_chunks = []
 
         # 停止流式TTS处理器
         if self._streaming_tts:
@@ -514,16 +526,44 @@ class VoiceDialogSystem:
 
         return None  # 不阻塞，结果通过回调发送
 
-    def _cancel_interrupt_confirmation(self):
+    async def _pause_frontend(self):
         """
-        取消打断确认模式，继续播报
+        暂停发送给前端（声学VAD检测到用户说话时调用）
+
+        v3.6: 暂停前端显示和播放，但后台任务继续运行
+        - 设置暂停标志
+        - 通知前端暂停
         """
+        if self._is_paused:
+            return
+
+        self._is_paused = True
+        self._paused_llm_chunks = []
+        self._paused_audio_chunks = []
+
+        # 通知前端暂停
+        await self._notify_pause()
+
+        logger.info("[暂停] 前端显示/播放已暂停，后台任务继续运行")
+
+    async def _resume_frontend(self):
+        """
+        恢复发送给前端（语义VAD判断为无效信息时调用）
+
+        v3.6: 恢复前端显示和播放
+        - 发送暂停期间缓存的数据
+        - 通知前端恢复
+        """
+        if not self._is_paused:
+            return
+
+        self._is_paused = False
         self._interrupt_confirm_mode = False
         self._is_streaming = False
         self._tts_stopped_for_interrupt = False
-        self._asr_text_buffer = ""  # 清空ASR文本缓冲区
-        self._first_asr_received = False  # 重置ASR首字标记
-        self._should_stop_llm = False  # 重置LLM停止标志
+        self._asr_text_buffer = ""
+        self._first_asr_received = False
+        self._should_stop_llm = False
 
         # 停止流式处理
         try:
@@ -535,7 +575,46 @@ class VoiceDialogSystem:
         self.emotion_recognizer.reset()
         self.acoustic_vad.reset()
 
-        logger.debug("[打断] 确认取消，继续播报")
+        # 发送暂停期间缓存的LLM文本块
+        if self._paused_llm_chunks:
+            logger.info(f"[恢复] 发送缓存的LLM文本块: {len(self._paused_llm_chunks)} 个")
+            for chunk in self._paused_llm_chunks:
+                await self._notify_llm_chunk(chunk)
+            self._paused_llm_chunks = []
+
+        # 发送暂停期间缓存的音频块
+        if self._paused_audio_chunks:
+            logger.info(f"[恢复] 发送缓存的音频块: {len(self._paused_audio_chunks)} 个")
+            for audio in self._paused_audio_chunks:
+                await self._notify_audio_chunk(audio)
+            self._paused_audio_chunks = []
+
+        # 通知前端恢复
+        await self._notify_resume()
+
+        logger.info("[恢复] 前端显示/播放已恢复")
+
+    async def _notify_pause(self):
+        """通知前端暂停"""
+        for callback in self._on_pause_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback()
+                else:
+                    callback()
+            except Exception as e:
+                logger.error(f"暂停回调错误: {e}")
+
+    async def _notify_resume(self):
+        """通知前端恢复"""
+        for callback in self._on_resume_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback()
+                else:
+                    callback()
+            except Exception as e:
+                logger.error(f"恢复回调错误: {e}")
 
     async def _start_streaming(self, interrupt_mode: bool = False):
         """启动流式处理"""
@@ -974,6 +1053,12 @@ class VoiceDialogSystem:
 
     async def _notify_llm_chunk(self, chunk: str):
         """通知LLM流式输出块"""
+        # v3.6: 如果暂停中，缓存数据而不是发送
+        if self._is_paused:
+            self._paused_llm_chunks.append(chunk)
+            logger.debug(f"[暂停] 缓存LLM文本块: {chunk[:20]}...")
+            return
+
         for callback in self._on_llm_chunk_callbacks:
             try:
                 if asyncio.iscoroutinefunction(callback):
@@ -985,6 +1070,12 @@ class VoiceDialogSystem:
 
     async def _notify_audio_chunk(self, audio_data: bytes):
         """通知TTS音频块（实时播报）"""
+        # v3.6: 如果暂停中，缓存数据而不是发送
+        if self._is_paused:
+            self._paused_audio_chunks.append(audio_data)
+            logger.debug(f"[暂停] 缓存音频块: {len(audio_data)} bytes")
+            return
+
         for callback in self._on_audio_chunk_callbacks:
             try:
                 if asyncio.iscoroutinefunction(callback):
@@ -1022,6 +1113,14 @@ class VoiceDialogSystem:
         """注册清空音频回调（新问题开始时调用）"""
         self._on_clear_audio_callbacks.append(callback)
 
+    def on_pause(self, callback: Callable):
+        """注册暂停回调（声学VAD检测到用户说话时调用）"""
+        self._on_pause_callbacks.append(callback)
+
+    def on_resume(self, callback: Callable):
+        """注册恢复回调（语义VAD判断为无效信息时调用）"""
+        self._on_resume_callbacks.append(callback)
+
     def on_latency_update(self, callback: Callable):
         """注册时延更新回调"""
         self._on_latency_update_callbacks.append(callback)
@@ -1049,6 +1148,11 @@ class VoiceDialogSystem:
         self._interrupt_confirm_mode = False
         self._tts_stopped_for_interrupt = False
         self._should_stop_llm = False  # 重置LLM停止标志
+
+        # v3.6: 重置暂停状态
+        self._is_paused = False
+        self._paused_llm_chunks = []
+        self._paused_audio_chunks = []
 
         # 取消LLM任务
         if self._llm_task and not self._llm_task.done():
