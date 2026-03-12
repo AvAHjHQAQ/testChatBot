@@ -585,7 +585,7 @@ class StreamingTTSProcessor:
 
         这是后台任务，独立于文本添加
         """
-        logger.debug("[TTS] 消费者循环启动")
+        logger.info("[TTS] 消费者循环启动")
 
         while self._is_running and not self._should_stop:
             try:
@@ -602,14 +602,16 @@ class StreamingTTSProcessor:
                     timeout=0.5
                 )
 
+                logger.info(f"[TTS] 从队列获取文本: '{item[:30] if isinstance(item, str) else item}...'")
+
                 # 检查是否是特殊信号
                 if item is self._STOP_SIGNAL:
-                    logger.debug("[TTS] 收到停止信号，退出消费者循环")
+                    logger.info("[TTS] 收到停止信号，退出消费者循环")
                     break
 
                 if item is self._FLUSH_SIGNAL:
                     # 刷新信号，处理剩余缓冲区
-                    logger.debug("[TTS] 收到刷新信号")
+                    logger.info("[TTS] 收到刷新信号")
                     await self._process_buffer(is_flush=True)
                     # 刷新后检查是否需要停止
                     if self._should_stop:
@@ -619,14 +621,18 @@ class StreamingTTSProcessor:
 
                 # 正常文本，添加到缓冲区
                 self._text_buffer += item
+                logger.info(f"[TTS] 文本已添加到缓冲区，当前缓冲区长度: {len(self._text_buffer)}")
 
                 # 检查是否需要合成
                 if self._should_synthesize():
+                    logger.info(f"[TTS] 满足合成条件，开始处理缓冲区")
                     await self._process_buffer(is_flush=False)
                     # 每个句子处理后检查是否需要停止（响应打断）
                     if self._should_stop:
                         logger.info("[TTS] 句子处理后检测到停止信号，退出循环")
                         break
+                else:
+                    logger.info(f"[TTS] 不满足合成条件，继续等待")
 
             except asyncio.TimeoutError:
                 # 超时，检查是否应该退出
@@ -724,12 +730,15 @@ class StreamingTTSProcessor:
         # 检查是否有句子结束符
         for ending in self.SENTENCE_ENDINGS:
             if ending in self._text_buffer:
+                logger.info(f"[TTS] 检测到句子结束符 '{ending}'，满足合成条件")
                 return True
 
         # 超过最大长度也要转换
         if len(self._text_buffer) >= self.MAX_CHUNK_SIZE:
+            logger.info(f"[TTS] 缓冲区长度 {len(self._text_buffer)} >= {self.MAX_CHUNK_SIZE}，满足合成条件")
             return True
 
+        logger.debug(f"[TTS] 缓冲区长度 {len(self._text_buffer)}，不满足合成条件")
         return False
 
     def _split_text(self) -> tuple:

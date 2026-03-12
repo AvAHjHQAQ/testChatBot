@@ -77,6 +77,14 @@ class ConnectionManager:
         system.on_clear_audio(lambda: asyncio.create_task(
             self.send_clear_audio(client_id)
         ))
+        # v3.6: 注册暂停音频回调（打断确认时）
+        system.on_pause_audio(lambda: asyncio.create_task(
+            self.send_pause_audio(client_id)
+        ))
+        # v3.6: 注册恢复音频回调（取消打断时）
+        system.on_resume_audio(lambda: asyncio.create_task(
+            self.send_resume_audio(client_id)
+        ))
 
         logger.info(f"客户端连接: {client_id}")
 
@@ -234,6 +242,20 @@ class ConnectionManager:
             "type": "clear_audio"
         })
         logger.info(f"[音频流] 已通知前端清空音频队列: {client_id}")
+
+    async def send_pause_audio(self, client_id: str):
+        """发送暂停音频播放消息"""
+        await self.send_json(client_id, {
+            "type": "pause_audio"
+        })
+        logger.info(f"[音频流] 已通知前端暂停音频播放: {client_id}")
+
+    async def send_resume_audio(self, client_id: str):
+        """发送恢复音频播放消息"""
+        await self.send_json(client_id, {
+            "type": "resume_audio"
+        })
+        logger.info(f"[音频流] 已通知前端恢复音频播放: {client_id}")
 
     async def send_tool_executing(self, client_id: str, tool_name: str, tool_args: dict):
         """发送工具执行状态"""
