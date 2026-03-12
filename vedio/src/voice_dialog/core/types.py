@@ -65,6 +65,15 @@ class SemanticVADResult:
 
 
 @dataclass
+class EmotionResult:
+    """情绪识别结果"""
+    emotion: EmotionType
+    confidence: float = 1.0
+    intensity: float = 0.5  # 0-1, 情绪强度
+    details: Optional[Dict] = None
+
+
+@dataclass
 class QwenOmniResult:
     """Qwen Omni处理结果 (ASR + 语义VAD + 情绪识别)
 
@@ -85,15 +94,6 @@ class QwenOmniResult:
                 confidence=0.8,
                 intensity=0.5
             )
-
-
-@dataclass
-class EmotionResult:
-    """情绪识别结果"""
-    emotion: EmotionType
-    confidence: float = 1.0
-    intensity: float = 0.5  # 0-1, 情绪强度
-    details: Optional[Dict] = None
 
 
 @dataclass

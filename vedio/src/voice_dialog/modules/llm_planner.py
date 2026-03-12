@@ -11,7 +11,7 @@ v3.0 特性：
 import asyncio
 import json
 import re
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Callable
 from ..core.logger import logger
 
 try:
