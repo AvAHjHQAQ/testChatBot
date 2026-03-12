@@ -397,6 +397,7 @@ class StreamingTTS:
         self.engine = TTSEngine()
         self._is_playing = False
         self._should_stop = False
+        self._is_paused = False  # v3.6: 暂停状态
 
     async def stream_synthesize(self, text: str):
         """
@@ -423,6 +424,13 @@ class StreamingTTS:
                 if self._should_stop:
                     break
 
+                # v3.6: 暂停时等待
+                while self._is_paused and not self._should_stop:
+                    await asyncio.sleep(0.05)
+
+                if self._should_stop:
+                    break
+
                 if chunk["type"] == "audio":
                     yield chunk["data"]
 
@@ -435,6 +443,17 @@ class StreamingTTS:
     def stop(self):
         """停止播放"""
         self._should_stop = True
+        self._is_paused = False  # v3.6: 清除暂停状态
+
+    def pause(self):
+        """v3.6: 暂停播放"""
+        self._is_paused = True
+        logger.debug("[StreamingTTS] 已暂停")
+
+    def resume(self):
+        """v3.6: 恢复播放"""
+        self._is_paused = False
+        logger.debug("[StreamingTTS] 已恢复")
 
     @property
     def is_playing(self) -> bool:
@@ -495,6 +514,7 @@ class StreamingTTSProcessor:
         # 状态
         self._should_stop = False
         self._is_running = False
+        self._is_paused = False  # v3.6: 暂停状态
 
         # 统计
         self._total_text = ""
@@ -569,6 +589,13 @@ class StreamingTTSProcessor:
 
         while self._is_running and not self._should_stop:
             try:
+                # v3.6: 暂停时等待
+                while self._is_paused and not self._should_stop:
+                    await asyncio.sleep(0.05)
+
+                if self._should_stop:
+                    break
+
                 # 从队列获取文本（带超时，避免永久阻塞）
                 item = await asyncio.wait_for(
                     self._text_queue.get(),
@@ -899,6 +926,7 @@ class StreamingTTSProcessor:
         logger.info("[TTS] stop() 被调用，停止TTS处理")
         self._should_stop = True
         self._is_running = False
+        self._is_paused = False  # v3.6: 清除暂停状态
 
         # 清空文本缓冲区（打断时丢弃未处理的文本）
         self._text_buffer = ""
@@ -926,6 +954,16 @@ class StreamingTTSProcessor:
 
         self._consumer_task = None
 
+    def pause(self):
+        """v3.6: 暂停处理"""
+        logger.info("[TTS] pause() 被调用，暂停TTS处理")
+        self._is_paused = True
+
+    def resume(self):
+        """v3.6: 恢复处理"""
+        logger.info("[TTS] resume() 被调用，恢复TTS处理")
+        self._is_paused = False
+
     def reset(self):
         """重置状态"""
         self._text_buffer = ""
@@ -933,6 +971,7 @@ class StreamingTTSProcessor:
         self._audio_chunks = []
         self._should_stop = False
         self._is_running = False
+        self._is_paused = False  # v3.6: 重置暂停状态
         self._sentence_count = 0
 
         # 清空队列
