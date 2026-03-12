@@ -459,6 +459,16 @@
                     stopAudioPlayback();
                     console.log('[音频流] 已清空音频队列');
                     break;
+                case 'pause_audio':
+                    // v3.6: 暂停音频播放（声学VAD检测到人声）
+                    pauseAudioPlayback();
+                    console.log('[音频流] 已暂停音频播放');
+                    break;
+                case 'resume_audio':
+                    // v3.6: 恢复音频播放（语义VAD判断为非有效人声）
+                    resumeAudioPlayback();
+                    console.log('[音频流] 已恢复音频播放');
+                    break;
                 case 'pong':
                     break;
             }
@@ -472,9 +482,18 @@
         let audioQueue = [];
         let isPlayingAudio = false;
         let currentAudio = null;
+        let isAudioPaused = false;  // v3.6: 音频暂停状态
+        let pausedAudioQueue = [];  // v3.6: 暂停时缓存的音频队列
 
         // 处理TTS音频块（实时播报）
         function handleAudioChunk(base64Audio) {
+            // v3.6: 如果暂停中，缓存音频但不播放
+            if (isAudioPaused) {
+                pausedAudioQueue.push(base64Audio);
+                console.log('[音频] 暂停中，缓存音频, 缓存长度:', pausedAudioQueue.length);
+                return;
+            }
+
             // 将音频块加入队列
             audioQueue.push(base64Audio);
             console.log('[音频] 加入队列, 队列长度:', audioQueue.length, '播放中:', isPlayingAudio);
@@ -544,6 +563,7 @@
             console.log('[音频] 停止播放，清空队列');
             // 清空队列
             audioQueue = [];
+            pausedAudioQueue = [];  // v3.6: 清空暂停缓存
 
             // 停止当前播放
             if (currentAudio) {
@@ -552,6 +572,45 @@
             }
 
             isPlayingAudio = false;
+            isAudioPaused = false;  // v3.6: 重置暂停状态
+        }
+
+        // v3.6: 暂停音频播放（声学VAD检测到人声时调用）
+        function pauseAudioPlayback() {
+            console.log('[音频] 暂停播放');
+            isAudioPaused = true;
+
+            // 暂停当前播放的音频
+            if (currentAudio) {
+                currentAudio.pause();
+                console.log('[音频] 当前音频已暂停');
+            }
+        }
+
+        // v3.6: 恢复音频播放（语义VAD判断为非有效人声时调用）
+        function resumeAudioPlayback() {
+            console.log('[音频] 恢复播放');
+            isAudioPaused = false;
+
+            // 将暂停期间缓存的音频加入播放队列
+            if (pausedAudioQueue.length > 0) {
+                console.log('[音频] 恢复缓存音频, 数量:', pausedAudioQueue.length);
+                audioQueue = audioQueue.concat(pausedAudioQueue);
+                pausedAudioQueue = [];
+            }
+
+            // 恢复当前音频播放
+            if (currentAudio) {
+                currentAudio.play().catch(e => {
+                    console.error('[音频] 恢复播放失败:', e);
+                    // 如果恢复失败，尝试播放下一个
+                    playNextAudioChunk();
+                });
+                console.log('[音频] 当前音频已恢复');
+            } else if (audioQueue.length > 0 && !isPlayingAudio) {
+                // 如果没有当前音频但有队列，开始播放
+                playNextAudioChunk();
+            }
         }
 
         // 处理LLM流式输出块
