@@ -510,10 +510,29 @@ class VoiceDialogSystem:
         打断确认完成，将用户输入交给LLM处理
 
         v3.5: LLM 处理作为后台任务运行
+        v3.8: 清除暂停状态，确保TTS音频能正常发送
         """
         self._interrupt_confirm_mode = False
         self._is_streaming = False
         self._tts_stopped_for_interrupt = False  # 重置TTS停止标志
+
+        # v3.8: 清除暂停状态，确保后续TTS音频能正常发送
+        if self._is_paused:
+            logger.info("[打断] 清除暂停状态，准备发送TTS音频")
+            self._is_paused = False
+            # 发送暂停期间缓存的数据
+            if self._paused_llm_chunks:
+                logger.info(f"[打断] 发送缓存的LLM文本块: {len(self._paused_llm_chunks)} 个")
+                for chunk in self._paused_llm_chunks:
+                    await self._notify_llm_chunk(chunk)
+                self._paused_llm_chunks = []
+            if self._paused_audio_chunks:
+                logger.info(f"[打断] 发送缓存的音频块: {len(self._paused_audio_chunks)} 个")
+                for audio in self._paused_audio_chunks:
+                    await self._notify_audio_chunk(audio)
+                self._paused_audio_chunks = []
+            # 通知前端恢复
+            await self._notify_resume()
 
         # ========== 清空旧音频流，准备新问题 ==========
         await self._clear_audio_stream()
@@ -733,12 +752,20 @@ class VoiceDialogSystem:
         结束流式处理，进入融合阶段
 
         v3.5: LLM 处理作为后台任务运行，不阻塞音频接收
+        v3.8: 确保暂停状态被清除
         """
         if not self._is_streaming:
             return None
 
         self._is_streaming = False
         self._is_interrupted = False
+
+        # v3.8: 确保暂停状态被清除（防止残留状态影响TTS）
+        if self._is_paused:
+            logger.warning("[语音段结束] 检测到残留的暂停状态，清除它")
+            self._is_paused = False
+            self._paused_llm_chunks = []
+            self._paused_audio_chunks = []
 
         # 重置语义VAD的打断模式
         self.semantic_vad.processor.set_interrupt_mode(False)
