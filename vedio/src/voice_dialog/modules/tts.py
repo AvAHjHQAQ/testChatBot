@@ -515,7 +515,7 @@ class StreamingTTSProcessor:
 
         self._is_running = True
         self._consumer_task = asyncio.create_task(self._consumer_loop())
-        logger.debug("[TTS] 消费者任务已启动")
+        logger.info("[TTS] 消费者任务已启动，等待LLM文本输入...")
 
     def add_text_nowait(self, text: str) -> bool:
         """
@@ -534,11 +534,13 @@ class StreamingTTSProcessor:
             asyncio.QueueFull: 队列已满时抛出
         """
         if self._should_stop or not text:
+            logger.debug(f"[TTS] add_text_nowait 跳过: should_stop={self._should_stop}, text_empty={not text}")
             return False
 
         # 使用 put_nowait，完全非阻塞
         self._text_queue.put_nowait(text)
         self._total_text += text
+        logger.info(f"[TTS] add_text_nowait 添加文本: '{text[:30]}...' (队列大小: {self._text_queue.qsize()})")
         return True
 
     async def add_text(self, text: str) -> bool:
@@ -565,7 +567,7 @@ class StreamingTTSProcessor:
 
         这是后台任务，独立于文本添加
         """
-        logger.debug("[TTS] 消费者循环启动")
+        logger.info("[TTS] 消费者循环启动，开始监听文本队列...")
 
         while self._is_running and not self._should_stop:
             try:
@@ -577,12 +579,12 @@ class StreamingTTSProcessor:
 
                 # 检查是否是特殊信号
                 if item is self._STOP_SIGNAL:
-                    logger.debug("[TTS] 收到停止信号，退出消费者循环")
+                    logger.info("[TTS] 收到停止信号，退出消费者循环")
                     break
 
                 if item is self._FLUSH_SIGNAL:
                     # 刷新信号，处理剩余缓冲区
-                    logger.debug("[TTS] 收到刷新信号")
+                    logger.info(f"[TTS] 收到刷新信号，当前缓冲区: '{self._text_buffer[:50]}...'")
                     await self._process_buffer(is_flush=True)
                     # 刷新后检查是否需要停止
                     if self._should_stop:
@@ -592,9 +594,13 @@ class StreamingTTSProcessor:
 
                 # 正常文本，添加到缓冲区
                 self._text_buffer += item
+                logger.info(f"[TTS] 消费者收到文本，缓冲区更新: '{self._text_buffer[:50]}...' (长度: {len(self._text_buffer)})")
 
                 # 检查是否需要合成
-                if self._should_synthesize():
+                should_synthesize = self._should_synthesize()
+                logger.debug(f"[TTS] 是否需要合成: {should_synthesize} (缓冲区长度: {len(self._text_buffer)}, MAX_CHUNK_SIZE: {self.MAX_CHUNK_SIZE})")
+
+                if should_synthesize:
                     await self._process_buffer(is_flush=False)
                     # 每个句子处理后检查是否需要停止（响应打断）
                     if self._should_stop:
@@ -629,14 +635,17 @@ class StreamingTTSProcessor:
             return
 
         if not self._text_buffer:
+            logger.debug("[TTS] _process_buffer 缓冲区为空，跳过")
             return
+
+        logger.info(f"[TTS] _process_buffer 开始处理 (is_flush={is_flush}, 缓冲区长度={len(self._text_buffer)})")
 
         # 分割文本
         if is_flush:
             # 刷新模式：处理所有剩余文本
             if len(self._text_buffer) < self.MIN_CHUNK_SIZE:
                 # 剩余文本太短，跳过
-                logger.debug(f"[TTS] flush跳过短文本: '{self._text_buffer[:20]}...'")
+                logger.info(f"[TTS] flush跳过短文本(长度{len(self._text_buffer)} < MIN_CHUNK_SIZE{self.MIN_CHUNK_SIZE}): '{self._text_buffer[:20]}...'")
                 self._text_buffer = ""
                 return
             to_synthesize = self._text_buffer
@@ -645,14 +654,18 @@ class StreamingTTSProcessor:
             # 正常模式：按句子分割
             to_synthesize, remaining = self._split_text()
             self._text_buffer = remaining
+            logger.info(f"[TTS] 分割文本: 待合成='{to_synthesize[:30]}...', 剩余='{remaining[:30]}...'")
 
         if not to_synthesize:
+            logger.warning("[TTS] 分割后无待合成文本")
             return
 
         # 清理文本
         cleaned_text = clean_text_for_tts(to_synthesize)
+        logger.info(f"[TTS] 清理后文本: '{cleaned_text[:50]}...' (原长度={len(to_synthesize)}, 清理后长度={len(cleaned_text)})")
 
         if not cleaned_text.strip():
+            logger.warning(f"[TTS] 清理后文本为空，跳过TTS: 原文='{to_synthesize[:30]}...'")
             return
 
         self._sentence_count += 1
@@ -665,13 +678,17 @@ class StreamingTTSProcessor:
             audio_data = b""
 
             # 优先使用Qwen3 TTS
+            logger.info(f"[TTS] 句子#{sentence_num} 使用provider={self.provider}, HAS_DASHSCOPE={HAS_DASHSCOPE}")
             if self.provider == "qwen3" and HAS_DASHSCOPE:
                 audio_data = await self._synthesize_qwen3_stream(cleaned_text, sentence_num)
             else:
                 # 使用Edge TTS
+                logger.info(f"[TTS] 句子#{sentence_num} 使用Edge TTS")
                 audio_data = await self._synthesize_edge_stream(cleaned_text, sentence_num)
 
             # 音频合成完成后立即发送（不等待锁）
+            logger.info(f"[TTS] 句子#{sentence_num}({mode_str}) TTS返回: audio_data长度={len(audio_data) if audio_data else 0}, on_audio_chunk存在={self.on_audio_chunk is not None}, should_stop={self._should_stop}")
+
             if audio_data and len(audio_data) > 0 and self.on_audio_chunk and not self._should_stop:
                 self._audio_chunks.append(audio_data)
                 logger.info(f"[TTS] 句子#{sentence_num}({mode_str}) 转换完成，准备发送: {len(audio_data)} bytes")
@@ -680,10 +697,12 @@ class StreamingTTSProcessor:
             elif audio_data and len(audio_data) == 0:
                 logger.warning(f"[TTS] 句子#{sentence_num}({mode_str}) 音频为空，跳过发送")
             else:
-                logger.debug(f"[TTS] 句子#{sentence_num}({mode_str}) 无音频或已停止")
+                logger.warning(f"[TTS] 句子#{sentence_num}({mode_str}) 未发送音频: audio_data={audio_data is not None}, len={len(audio_data) if audio_data else 0}, callback={self.on_audio_chunk is not None}, stopped={self._should_stop}")
 
         except Exception as e:
             logger.error(f"[TTS] 句子#{sentence_num} 转换失败: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _should_synthesize(self) -> bool:
         """判断是否需要进行TTS转换 - 按句子分段"""
@@ -753,6 +772,8 @@ class StreamingTTSProcessor:
         def _sync_synthesize():
             audio_data = b""
             try:
+                logger.debug(f"[TTS] 调用Qwen3 TTS API: text='{text[:30]}...', voice={self.voice}")
+                
                 # 调用Qwen3 TTS流式API（同步调用）
                 response = MultiModalConversation.call(
                     model="qwen3-tts-flash",
@@ -763,6 +784,7 @@ class StreamingTTSProcessor:
                 )
 
                 # 收集流式输出的音频数据（同步迭代）
+                chunk_count = 0
                 for chunk in response:
                     if self._should_stop:
                         break
@@ -773,17 +795,28 @@ class StreamingTTSProcessor:
                             # Base64解码音频数据
                             wav_bytes = base64.b64decode(audio.data)
                             audio_data += wav_bytes
+                            chunk_count += 1
 
+                logger.debug(f"[TTS] Qwen3 TTS API返回: {chunk_count}个音频块, 总大小={len(audio_data)} bytes")
                 return audio_data
 
             except Exception as e:
-                logger.error(f"[TTS] Qwen3 TTS流式合成失败: {e}")
-                return b""
+                logger.error(f"[TTS] Qwen3 TTS流式合成失败: {e}, text='{text[:30]}...', voice={self.voice}")
+                import traceback
+                traceback.print_exc()
+                return None  # 返回None表示失败，需要尝试后备方案
 
         # 在线程池中执行同步合成，不阻塞事件循环
         loop = asyncio.get_running_loop()
         try:
             audio_data = await loop.run_in_executor(None, _sync_synthesize)
+            
+            # 检查是否成功
+            if audio_data is None:
+                # API调用失败，尝试Edge TTS后备
+                logger.warning(f"[TTS] Qwen3 TTS失败，尝试Edge TTS后备: 句子#{sentence_num}")
+                return await self._synthesize_edge_stream(text, sentence_num)
+            
             return audio_data
         except Exception as e:
             logger.error(f"[TTS] Qwen3 TTS执行器错误: {e}")

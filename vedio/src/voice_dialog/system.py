@@ -862,12 +862,17 @@ class VoiceDialogSystem:
         async def on_audio_chunk(audio_data: bytes):
             """TTS音频块回调 - 每个句子完成后发送"""
             if self._should_stop_llm:
+                logger.debug(f"[TTS回调] 跳过音频发送: should_stop_llm=True")
                 return
+            logger.info(f"[TTS回调] 收到音频块: {len(audio_data)} bytes")
             await self._notify_audio_chunk(audio_data)
+            logger.info(f"[TTS回调] 音频块已发送到前端")
 
         # 创建流式TTS处理器并启动消费者任务
         self._streaming_tts = StreamingTTSProcessor(on_audio_chunk=on_audio_chunk)
+        logger.info(f"[TTS] 创建StreamingTTSProcessor，准备启动消费者任务...")
         await self._streaming_tts.start()  # v3.4: 启动消费者任务
+        logger.info(f"[TTS] StreamingTTSProcessor已启动")
 
         # 收集完整响应文本
         response_text_parts = []
@@ -881,12 +886,16 @@ class VoiceDialogSystem:
             if self._should_stop_llm:
                 return
             response_text_parts.append(chunk)
+            logger.info(f"[LLM回调] 收到文本块: '{chunk[:30]}...' (长度: {len(chunk)})")
             # 非阻塞放入TTS队列（使用put_nowait，不等待）
             if self._streaming_tts and not self._streaming_tts._should_stop:
                 try:
-                    self._streaming_tts.add_text_nowait(chunk)
+                    success = self._streaming_tts.add_text_nowait(chunk)
+                    logger.info(f"[LLM回调] 文本块已添加到TTS队列: success={success}")
                 except asyncio.QueueFull:
                     logger.warning(f"[TTS] 队列已满，跳过文本块: {chunk[:20]}...")
+            else:
+                logger.warning(f"[LLM回调] TTS处理器不可用: streaming_tts={self._streaming_tts is not None}, should_stop={self._streaming_tts._should_stop if self._streaming_tts else 'N/A'}")
             # 前端显示（创建任务，不阻塞）
             asyncio.create_task(self._notify_llm_chunk(chunk))
 
