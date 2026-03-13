@@ -377,13 +377,6 @@ class AcousticVAD:
         Returns:
             是否检测到打断
         """
-        # 缓存音频帧（用于后续ASR处理）
-        self._interrupt_audio_buffer.append(audio_frame)
-        # 限制缓存大小，避免内存溢出（保留最近500ms）
-        max_buffer_frames = 25  # 25帧 * 20ms = 500ms
-        if len(self._interrupt_audio_buffer) > max_buffer_frames:
-            self._interrupt_audio_buffer.pop(0)
-
         is_speech = self._detect_speech(audio_frame)
 
         if is_speech:
@@ -400,6 +393,23 @@ class AcousticVAD:
 
         return False
 
+    def cache_interrupt_audio(self, audio_chunk: bytes):
+        """
+        缓存打断检测期间的音频数据
+
+        v3.8: 由 StreamingVAD.check_interrupt 调用，缓存原始音频块
+
+        Args:
+            audio_chunk: 音频数据块
+        """
+        self._interrupt_audio_buffer.append(audio_chunk)
+        # 限制缓存大小，避免内存溢出（保留最近500ms）
+        max_buffer_size = 25 * self._frame_size  # 25帧 * 每帧大小
+        total_size = sum(len(f) for f in self._interrupt_audio_buffer)
+        while total_size > max_buffer_size and self._interrupt_audio_buffer:
+            removed = self._interrupt_audio_buffer.pop(0)
+            total_size -= len(removed)
+
     def get_interrupt_audio_buffer(self) -> bytes:
         """
         获取打断检测期间缓存的音频数据
@@ -412,7 +422,8 @@ class AcousticVAD:
         if not self._interrupt_audio_buffer:
             return b""
         audio_data = b''.join(self._interrupt_audio_buffer)
-        logger.debug(f"声学VAD: 获取打断音频缓存 {len(self._interrupt_audio_buffer)}帧 ({len(audio_data)} bytes)")
+        duration_ms = len(audio_data) / 32  # 16kHz * 2 bytes = 32 bytes/ms
+        logger.info(f"声学VAD: 获取打断音频缓存 {len(self._interrupt_audio_buffer)}块, {len(audio_data)} bytes, {duration_ms:.0f}ms")
         return audio_data
 
     def clear_interrupt_audio_buffer(self):
@@ -539,9 +550,15 @@ class StreamingVAD:
         """
         检查是否是打断
 
+        v3.8 更新：缓存所有处理的音频帧，避免丢失语音开头
+
         Returns:
             是否检测到打断
         """
+        # v3.8: 先缓存整个音频块到打断缓冲区
+        # 这样可以确保不会丢失任何音频
+        self.acoustic_vad.cache_interrupt_audio(audio_chunk)
+
         # 处理缓冲区中的帧
         self._buffer.extend(audio_chunk)
 
