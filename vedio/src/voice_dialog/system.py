@@ -64,11 +64,33 @@ class VoiceDialogSystem:
     5. 打断逻辑：语义VAD判断有效人声 → 立即停止TTS → 继续接收完整句子
     """
 
-    # 超时配置（毫秒）
-    MAX_SILENCE_WAIT_MS = 2000  # 最大静音等待时间
-    MIN_SPEECH_DURATION_MS = 300  # 最小语音时长
-    INTERRUPT_CONFIRM_TIMEOUT_MS = 1500  # 打断确认超时时间
-    SILENCE_THRESHOLD_MS = 500  # 静音检测阈值
+    # 超时配置（毫秒）- 从配置文件读取，提供默认值
+    @property
+    def MAX_SILENCE_WAIT_MS(self) -> int:
+        return 2000  # 最大静音等待时间
+
+    @property
+    def MIN_SPEECH_DURATION_MS(self) -> int:
+        return 300  # 最小语音时长
+
+    @property
+    def INTERRUPT_CONFIRM_TIMEOUT_MS(self) -> int:
+        """打断确认超时时间（v3.7: 从配置读取）"""
+        return self.config.system.get("interrupt", {}).get("confirm_timeout_ms", 2000)
+
+    @property
+    def SILENCE_THRESHOLD_MS(self) -> int:
+        return 500  # 静音检测阈值
+
+    @property
+    def INTERRUPT_NO_TEXT_THRESHOLD_MS(self) -> int:
+        """无文本判断为噪声的阈值（v3.7: 从配置读取）"""
+        return self.config.system.get("interrupt", {}).get("no_text_threshold_ms", 1200)
+
+    @property
+    def ASR_RESPONSE_TIMEOUT_MS(self) -> int:
+        """ASR响应超时时间（v3.7: 从配置读取）"""
+        return self.config.system.get("interrupt", {}).get("asr_response_timeout_ms", 3000)
 
     def __init__(self):
         self.config = get_config()
@@ -127,6 +149,7 @@ class VoiceDialogSystem:
         self._should_stop_llm = False  # 是否应该停止LLM输出
         self._audio_sequence = 0  # 音频序列号，确保播放顺序
         self._pending_audio_queue: List[tuple] = []  # 待发送的音频队列 (序列号, 音频数据)
+        self._asr_first_response_time: Optional[float] = None  # v3.7: ASR首次响应时间
 
         # ========== v3.6 暂停/恢复机制 ==========
         self._is_paused = False  # 是否暂停发送给前端
@@ -351,6 +374,8 @@ class VoiceDialogSystem:
         self._interrupt_start_time = time.time() * 1000
         self._tts_stopped_for_interrupt = False
         self._asr_text_buffer = ""
+        self._first_asr_received = False  # v3.7: 重置ASR响应标志
+        self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
         # 启动流式处理（打断模式）
         await self._start_streaming(interrupt_mode=True)
@@ -362,7 +387,9 @@ class VoiceDialogSystem:
         """
         检查打断确认结果
 
-        v3.3: 优化打断逻辑
+        v3.7: 优化ASR响应慢的情况
+        - 区分"ASR未响应"和"无有效文本"
+        - ASR响应慢时，延长等待时间
         - 有效人声：停止TTS，继续接收用户输入
         - 非有效人声（咳嗽、嗯等）：取消打断，继续播报
         - 待判断：继续等待
@@ -385,11 +412,21 @@ class VoiceDialogSystem:
 
         # 文本为空，检查是否超时
         if not text:
-            # 如果已经等待了足够长时间且没有文本，可能是噪声（咳嗽等）
-            if elapsed > 800:  # 800ms没有识别出文本，很可能是噪声
-                logger.info(f"[打断] 长时间无有效文本，判断为噪声，取消打断")
-                return "noise"
-            return "pending"
+            # v3.7: 区分ASR未响应和真正无文本
+            # 如果ASR还没返回任何结果，延长等待时间
+            if not self._first_asr_received:
+                # ASR还未响应，使用更长的超时时间
+                if elapsed > self.ASR_RESPONSE_TIMEOUT_MS:
+                    logger.info(f"[打断] ASR长时间({elapsed:.0f}ms)未响应，判断为噪声，取消打断")
+                    return "noise"
+                logger.debug(f"[打断] 等待ASR响应... ({elapsed:.0f}ms)")
+                return "pending"
+            else:
+                # ASR已响应但无文本，使用较短的超时时间
+                if elapsed > self.INTERRUPT_NO_TEXT_THRESHOLD_MS:
+                    logger.info(f"[打断] 长时间({elapsed:.0f}ms)无有效文本，判断为噪声，取消打断")
+                    return "noise"
+                return "pending"
 
         # 使用语义VAD判断人声有效性
         voice_validity = self.semantic_vad.processor.check_voice_validity(text)
@@ -410,9 +447,9 @@ class VoiceDialogSystem:
             logger.info(f"[打断] 检测到噪声，取消打断")
             return "noise"
 
-        # 检查文本内容是否像噪声/非有效人声
-        # 如果文本很短且全是重复字符或语气词，可能是噪声
-        if len(text) <= 2 and elapsed > 500:
+        # v3.6: 优化短文本判断逻辑
+        # 只有在接近超时且文本很短时才判断为噪声
+        if len(text) <= 2 and elapsed > self.INTERRUPT_CONFIRM_TIMEOUT_MS - 300:
             # 检查是否是重复字符或常见语气词
             noise_patterns = ["嗯", "啊", "呃", "额", "咳", "哼", "哈"]
             if all(c in noise_patterns for c in text):
@@ -564,6 +601,7 @@ class VoiceDialogSystem:
         self._asr_text_buffer = ""
         self._first_asr_received = False
         self._should_stop_llm = False
+        self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
         # 停止流式处理
         try:
@@ -653,9 +691,12 @@ class VoiceDialogSystem:
 
         # 追踪ASR首字延迟
         if not self._first_asr_received and text:
+            import time
+            self._asr_first_response_time = time.time() * 1000  # v3.7: 记录ASR首次响应时间
             latency_tracker.mark_start("asr_first_text")
             latency_tracker.mark_end("asr_first_text", {"text": text[:10]})
             self._first_asr_received = True
+            logger.info(f"[ASR] 首次响应: '{text}' (延迟: {self._asr_first_response_time - self._interrupt_start_time:.0f}ms)" if self._interrupt_start_time else f"[ASR] 首次响应: '{text}'")
 
         # 通知部分ASR结果
         await self._notify_partial_asr(text)
@@ -1148,6 +1189,8 @@ class VoiceDialogSystem:
         self._interrupt_confirm_mode = False
         self._tts_stopped_for_interrupt = False
         self._should_stop_llm = False  # 重置LLM停止标志
+        self._first_asr_received = False  # v3.7: 重置ASR响应标志
+        self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
         # v3.6: 重置暂停状态
         self._is_paused = False

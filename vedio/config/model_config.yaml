@@ -125,6 +125,10 @@ SYSTEM:
     enabled: true
     keywords: ["停", "等等", "打断"]
     audio_threshold: 0.6
+    # v3.7: ASR响应慢优化配置
+    confirm_timeout_ms: 2000        # 打断确认总超时时间（毫秒）
+    no_text_threshold_ms: 1200      # ASR已响应但无文本的判断阈值
+    asr_response_timeout_ms: 3000   # ASR未响应的等待超时时间
 
   # 多轮对话
   conversation:

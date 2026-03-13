@@ -107,7 +107,10 @@ class Config:
                 "max_history": 10
             },
             "interrupt": {
-                "enabled": True
+                "enabled": True,
+                "confirm_timeout_ms": 2000,  # v3.7: 打断确认超时时间
+                "no_text_threshold_ms": 1200,  # v3.7: 无文本判断为噪声的阈值
+                "asr_response_timeout_ms": 3000  # v3.7: ASR响应超时时间
             }
         },
         "TAVILY": {
