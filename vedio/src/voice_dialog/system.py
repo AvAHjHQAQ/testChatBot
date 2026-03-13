@@ -80,7 +80,7 @@ class VoiceDialogSystem:
 
     @property
     def SILENCE_THRESHOLD_MS(self) -> int:
-        return 500  # 静音检测阈值
+        return 1000  # 静音检测阈值
 
     @property
     def INTERRUPT_NO_TEXT_THRESHOLD_MS(self) -> int:
@@ -361,14 +361,12 @@ class VoiceDialogSystem:
         v3.6: 声学VAD检测到用户说话时，暂停前端显示和播放
         - 后端的LLM和TTS任务继续运行，只是不发送给前端
         - 等待语义VAD判断后再决定是正式打断还是恢复
+        v3.9: 优化流畅性，并行执行暂停和启动流式处理
         """
         import time
 
         current_state = self.dialog_state.state
-        logger.info(f"[打断] 声学VAD检测到人声，暂停前端显示/播放，启动语义VAD判断... (当前状态: {current_state.value})")
-
-        # ========== v3.6: 暂停发送给前端，但后台任务继续运行 ==========
-        await self._pause_frontend()
+        logger.info(f"[打断] 声学VAD检测到人声，启动打断确认... (当前状态: {current_state.value})")
 
         self._interrupt_confirm_mode = True
         self._interrupt_start_time = time.time() * 1000
@@ -377,8 +375,11 @@ class VoiceDialogSystem:
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
-        # 启动流式处理（打断模式）
-        await self._start_streaming(interrupt_mode=True)
+        # v3.9: 并行执行暂停前端和启动流式处理，提高响应速度
+        await asyncio.gather(
+            self._pause_frontend(),
+            self._start_streaming(interrupt_mode=True)
+        )
         self._is_streaming = True
 
         return None
@@ -465,6 +466,7 @@ class VoiceDialogSystem:
         v3.6: 语义VAD判断为有效信息时，正式打断后端的LLM和TTS任务
         - 清空暂停期间缓存的数据
         - 停止TTS、LLM、清空音频队列
+        v3.9: 优化流畅性，并行执行停止操作
         """
         current_state = self.dialog_state.state
         logger.info(f"[打断] 语义VAD确认有效人声，正式停止后台任务 (状态: {current_state.value})")
@@ -479,6 +481,9 @@ class VoiceDialogSystem:
         # 清空暂停期间缓存的数据
         self._paused_llm_chunks = []
         self._paused_audio_chunks = []
+
+        # v3.9: 并行执行所有停止操作，提高响应速度
+        stop_tasks = []
 
         # 停止流式TTS处理器
         if self._streaming_tts:
@@ -500,8 +505,15 @@ class VoiceDialogSystem:
             self._llm_task = None
             logger.info("[打断] LLM流式输出任务已取消")
 
-        # 通知前端清空音频队列
-        await self._notify_clear_audio()
+        # 通知前端清空音频队列（异步执行，不等待）
+        stop_tasks.append(asyncio.create_task(self._notify_clear_audio()))
+
+        # 等待所有停止任务完成（带超时）
+        if stop_tasks:
+            try:
+                await asyncio.wait_for(asyncio.gather(*stop_tasks), timeout=0.5)
+            except asyncio.TimeoutError:
+                logger.debug("[打断] 部分停止任务超时，继续处理")
 
         logger.info("[打断] TTS/LLM已停止，音频队列已清空，继续接收用户输入...")
 
@@ -511,10 +523,14 @@ class VoiceDialogSystem:
 
         v3.5: LLM 处理作为后台任务运行
         v3.8: 清除暂停状态，确保TTS音频能正常发送
+        v3.9: 优化流畅性，并行执行多个步骤
         """
         self._interrupt_confirm_mode = False
         self._is_streaming = False
         self._tts_stopped_for_interrupt = False  # 重置TTS停止标志
+
+        # v3.9: 并行执行清除暂停状态和清空音频流
+        cleanup_tasks = []
 
         # v3.8: 清除暂停状态，确保后续TTS音频能正常发送
         if self._is_paused:
@@ -524,25 +540,35 @@ class VoiceDialogSystem:
             if self._paused_llm_chunks:
                 logger.info(f"[打断] 发送缓存的LLM文本块: {len(self._paused_llm_chunks)} 个")
                 for chunk in self._paused_llm_chunks:
-                    await self._notify_llm_chunk(chunk)
+                    cleanup_tasks.append(asyncio.create_task(self._notify_llm_chunk(chunk)))
                 self._paused_llm_chunks = []
             if self._paused_audio_chunks:
                 logger.info(f"[打断] 发送缓存的音频块: {len(self._paused_audio_chunks)} 个")
                 for audio in self._paused_audio_chunks:
-                    await self._notify_audio_chunk(audio)
+                    cleanup_tasks.append(asyncio.create_task(self._notify_audio_chunk(audio)))
                 self._paused_audio_chunks = []
             # 通知前端恢复
-            await self._notify_resume()
+            cleanup_tasks.append(asyncio.create_task(self._notify_resume()))
 
-        # ========== 清空旧音频流，准备新问题 ==========
-        await self._clear_audio_stream()
+        # 清空旧音频流
+        cleanup_tasks.append(asyncio.create_task(self._clear_audio_stream()))
+
+        # 并行执行清理任务
+        if cleanup_tasks:
+            await asyncio.gather(*cleanup_tasks, return_exceptions=True)
 
         # 重置语义VAD的打断模式
         self.semantic_vad.processor.set_interrupt_mode(False)
 
-        # 获取最终ASR结果
-        asr_result = await self.asr_processor.stop_stream()
+        # 并行获取ASR结果、语义VAD结果和情绪识别结果
+        asr_result, semantic_result = await asyncio.gather(
+            self.asr_processor.stop_stream(),
+            self.semantic_vad.stop()
+        )
+
         recognized_text = asr_result.text
+        semantic_state = semantic_result.state
+        semantic_confidence = semantic_result.confidence
 
         logger.info(f"[打断] 最终识别文本: '{recognized_text}'")
 
@@ -555,11 +581,6 @@ class VoiceDialogSystem:
                 semantic_state=SemanticState.REJECTED,
                 dialog_state=DialogState.IDLE
             )
-
-        # 获取语义VAD结果
-        semantic_result = await self.semantic_vad.stop()
-        semantic_state = semantic_result.state
-        semantic_confidence = semantic_result.confidence
 
         # 获取情绪识别结果
         emotion_result = await self.emotion_recognizer.finalize_sentence(recognized_text)
