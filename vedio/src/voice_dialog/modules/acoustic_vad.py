@@ -242,6 +242,7 @@ class AcousticVAD:
         # 打断检测增强 - 需要连续帧检测
         self._interrupt_speech_frames = 0  # 连续检测到语音的帧数
         self._interrupt_threshold_frames = 3  # 需要连续3帧(60ms)才确认打断
+        self._interrupt_audio_buffer: List[bytes] = []  # 打断检测期间缓存的音频帧
 
         # 计算帧大小
         self.frame_size = int(self.sample_rate * self.frame_duration_ms / 1000) * 2  # 16-bit
@@ -371,10 +372,18 @@ class AcousticVAD:
         检查是否是打断信号
 
         v3.2 更新：需要连续检测到多帧语音才确认打断，减少误触发
+        v3.8 更新：缓存打断检测期间的音频帧，避免丢失语音开头
 
         Returns:
             是否检测到打断
         """
+        # 缓存音频帧（用于后续ASR处理）
+        self._interrupt_audio_buffer.append(audio_frame)
+        # 限制缓存大小，避免内存溢出（保留最近500ms）
+        max_buffer_frames = 25  # 25帧 * 20ms = 500ms
+        if len(self._interrupt_audio_buffer) > max_buffer_frames:
+            self._interrupt_audio_buffer.pop(0)
+
         is_speech = self._detect_speech(audio_frame)
 
         if is_speech:
@@ -390,6 +399,25 @@ class AcousticVAD:
             self._interrupt_speech_frames = 0
 
         return False
+
+    def get_interrupt_audio_buffer(self) -> bytes:
+        """
+        获取打断检测期间缓存的音频数据
+
+        v3.8: 用于在启动ASR时回溯，避免丢失语音开头
+
+        Returns:
+            缓存的音频数据
+        """
+        if not self._interrupt_audio_buffer:
+            return b""
+        audio_data = b''.join(self._interrupt_audio_buffer)
+        logger.debug(f"声学VAD: 获取打断音频缓存 {len(self._interrupt_audio_buffer)}帧 ({len(audio_data)} bytes)")
+        return audio_data
+
+    def clear_interrupt_audio_buffer(self):
+        """清空打断音频缓存"""
+        self._interrupt_audio_buffer.clear()
 
     def get_silence_duration(self) -> float:
         """
@@ -410,6 +438,7 @@ class AcousticVAD:
         self._last_silence_duration = 0.0
         self._interrupt_speech_frames = 0
         self._prebuffer.clear()  # 清空预缓存
+        self._interrupt_audio_buffer.clear()  # 清空打断音频缓存
 
         # 重置 Silero VAD 状态
         if self._silero_vad.available:
@@ -537,6 +566,14 @@ class StreamingVAD:
         """重置"""
         self._buffer.clear()
         self.acoustic_vad.reset()
+
+    def get_interrupt_audio_buffer(self) -> bytes:
+        """获取打断检测期间缓存的音频数据"""
+        return self.acoustic_vad.get_interrupt_audio_buffer()
+
+    def clear_interrupt_audio_buffer(self):
+        """清空打断音频缓存"""
+        self.acoustic_vad.clear_interrupt_audio_buffer()
 
     @property
     def is_speech_active(self) -> bool:

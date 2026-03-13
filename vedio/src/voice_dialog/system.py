@@ -663,6 +663,14 @@ class VoiceDialogSystem:
             if not asr_started:
                 logger.warning("ASR流启动失败，将使用模拟模式")
 
+            # v3.8: 如果是打断模式，回溯缓存的音频到ASR，避免丢失语音开头
+            if interrupt_mode:
+                cached_audio = self.acoustic_vad.get_interrupt_audio_buffer()
+                if cached_audio:
+                    logger.info(f"[打断] 回溯缓存音频到ASR: {len(cached_audio)} bytes ({len(cached_audio) / 32:.0f}ms)")
+                    await self.asr_processor.process_chunk(cached_audio)
+                    self.acoustic_vad.clear_interrupt_audio_buffer()
+
             await self.semantic_vad.start(interrupt_mode=interrupt_mode)
             await self.emotion_recognizer.start()
 
