@@ -361,7 +361,7 @@ class VoiceDialogSystem:
         v3.6: 声学VAD检测到用户说话时，暂停前端显示和播放
         - 后端的LLM和TTS任务继续运行，只是不发送给前端
         - 等待语义VAD判断后再决定是正式打断还是恢复
-        v3.9: 优化流畅性，并行执行暂停和启动流式处理
+        v3.9: 优化流畅性，但确保ASR启动顺序正确
         """
         import time
 
@@ -375,12 +375,17 @@ class VoiceDialogSystem:
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
-        # v3.9: 并行执行暂停前端和启动流式处理，提高响应速度
+        # v3.9: 先启动流式处理（包含ASR启动和音频回溯），再并行执行其他初始化
+        # 这样可以确保ASR正确接收到缓存的音频
+        await self._start_streaming(interrupt_mode=True)
+        self._is_streaming = True
+
+        # 并行执行暂停前端和其他初始化
         await asyncio.gather(
             self._pause_frontend(),
-            self._start_streaming(interrupt_mode=True)
+            self.semantic_vad.start(interrupt_mode=True),
+            self.emotion_recognizer.start()
         )
-        self._is_streaming = True
 
         return None
 
@@ -711,9 +716,7 @@ class VoiceDialogSystem:
                     await self.asr_processor.process_chunk(cached_audio)
                     self.acoustic_vad.clear_interrupt_audio_buffer()
 
-            await self.semantic_vad.start(interrupt_mode=interrupt_mode)
-            await self.emotion_recognizer.start()
-
+            # 重置状态
             self._asr_text_buffer = ""
             self._streaming_start_time = None
             self._last_speech_time = None
