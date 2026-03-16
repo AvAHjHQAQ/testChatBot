@@ -537,21 +537,13 @@ class VoiceDialogSystem:
         # v3.9: 并行执行清除暂停状态和清空音频流
         cleanup_tasks = []
 
-        # v3.8: 清除暂停状态，确保后续TTS音频能正常发送
+        # v3.8: 清除暂停状态和缓存数据（确认打断后不发送旧数据）
         if self._is_paused:
-            logger.info("[打断] 清除暂停状态，准备发送TTS音频")
+            logger.info("[打断] 清除暂停状态和旧数据")
             self._is_paused = False
-            # 发送暂停期间缓存的数据
-            if self._paused_llm_chunks:
-                logger.info(f"[打断] 发送缓存的LLM文本块: {len(self._paused_llm_chunks)} 个")
-                for chunk in self._paused_llm_chunks:
-                    cleanup_tasks.append(asyncio.create_task(self._notify_llm_chunk(chunk)))
-                self._paused_llm_chunks = []
-            if self._paused_audio_chunks:
-                logger.info(f"[打断] 发送缓存的音频块: {len(self._paused_audio_chunks)} 个")
-                for audio in self._paused_audio_chunks:
-                    cleanup_tasks.append(asyncio.create_task(self._notify_audio_chunk(audio)))
-                self._paused_audio_chunks = []
+            # 清空暂停期间缓存的数据（不发送，因为用户已经打断）
+            self._paused_llm_chunks = []
+            self._paused_audio_chunks = []
             # 通知前端恢复
             cleanup_tasks.append(asyncio.create_task(self._notify_resume()))
 

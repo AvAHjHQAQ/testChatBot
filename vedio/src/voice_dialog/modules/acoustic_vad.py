@@ -404,7 +404,7 @@ class AcousticVAD:
         """
         self._interrupt_audio_buffer.append(audio_chunk)
         # 限制缓存大小，避免内存溢出（保留最近500ms）
-        max_buffer_size = 25 * self._frame_size  # 25帧 * 每帧大小
+        max_buffer_size = 25 * self.frame_size  # 25帧 * 每帧大小
         total_size = sum(len(f) for f in self._interrupt_audio_buffer)
         while total_size > max_buffer_size and self._interrupt_audio_buffer:
             removed = self._interrupt_audio_buffer.pop(0)
