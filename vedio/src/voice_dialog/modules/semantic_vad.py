@@ -92,6 +92,12 @@ class SemanticVADProcessor:
         "帮", "给", "想", "查", "找", "看", "听", "说", "问",
     ]
 
+    # 打断模式下需要等待后续内容的关键词（这些词后面通常还有内容）
+    INTERRUPT_CONTINUE_WORDS = [
+        "帮", "给", "想", "查", "找", "看", "听", "说", "问", "请",
+        "我要", "我想", "帮我", "给我", "我要查", "我想问",
+    ]
+
     # ========== v3.2 有效人声判断关键词 ==========
     # 语气助词/停顿词（这些不算有效人声）
     FILLER_WORDS = [
@@ -212,6 +218,7 @@ class SemanticVADProcessor:
         v3.1 打断模式下的快速判断
 
         打断后用户说话通常很短，使用更宽松的判断标准
+        v3.3 优化：避免过早判断完整，导致发送不完整句子
         """
         text = text.strip()
         clean_text = text
@@ -222,39 +229,107 @@ class SemanticVADProcessor:
             clean_text = clean_text.replace(noise, "")
         clean_text = clean_text.strip()
 
-        # 1. 检查是否有打断触发词（立即完整）
-        for trigger in self.INTERRUPT_TRIGGER_WORDS:
-            if trigger in text:
+        # ========== v3.3 新增：检查是否可能还在说话 ==========
+        # 检查是否以需要后续内容的关键词结尾（用户可能还在说）
+        for continue_word in self.INTERRUPT_CONTINUE_WORDS:
+            if text.endswith(continue_word) or clean_text.endswith(continue_word):
                 return SemanticVADResult(
-                    state=SemanticState.COMPLETE,
-                    confidence=0.95,
-                    reason=f"[打断模式] 检测到触发词: {trigger}"
+                    state=SemanticState.CONTINUING,
+                    confidence=0.8,
+                    reason=f"[打断模式] 检测到待续关键词: '{continue_word}'，继续等待"
                 )
 
-        # 2. 打断模式下，有1个以上关键词就判断完整
-        keyword_count = sum(1 for kw in self.INTERRUPT_COMPLETE_WORDS if kw in clean_text)
-        if keyword_count >= 1 and len(clean_text) >= 1:
+        # 检查是否包含需要后续内容的关键词，但文本还很短
+        for continue_word in self.INTERRUPT_CONTINUE_WORDS:
+            if continue_word in clean_text:
+                # 如果包含这些词，但文本长度不够，可能还在说
+                # 例如："帮我" 后面通常还有内容
+                if len(clean_text) <= len(continue_word) + 1:
+                    return SemanticVADResult(
+                        state=SemanticState.CONTINUING,
+                        confidence=0.7,
+                        reason=f"[打断模式] 包含待续关键词 '{continue_word}' 但文本较短，继续等待"
+                    )
+
+        # 1. 检查是否有打断触发词（立即完整）- 但排除待续词
+        for trigger in self.INTERRUPT_TRIGGER_WORDS:
+            if trigger in text:
+                # 检查是否是待续词
+                is_continue = False
+                for continue_word in self.INTERRUPT_CONTINUE_WORDS:
+                    if trigger == continue_word or text.endswith(continue_word):
+                        is_continue = True
+                        break
+                if not is_continue:
+                    return SemanticVADResult(
+                        state=SemanticState.COMPLETE,
+                        confidence=0.95,
+                        reason=f"[打断模式] 检测到触发词: {trigger}"
+                    )
+
+        # 2. 打断模式下，检查是否有完整的短句特征
+        # 完整短句：有结束标点，或者是确认/否定/停止类
+        complete_short_patterns = [
+            "好的", "行", "可以", "对", "是", "不", "不要", "别",
+            "停", "停止", "算了", "取消", "换一个", "下一个",
+            "好的", "嗯好", "行吧", "可以吧"
+        ]
+        for pattern in complete_short_patterns:
+            if clean_text == pattern or text == pattern:
+                return SemanticVADResult(
+                    state=SemanticState.COMPLETE,
+                    confidence=0.9,
+                    reason=f"[打断模式] 完整短句: '{pattern}'"
+                )
+
+        # 3. 有结束标点 + 有实际内容 → 完整
+        end_punctuation = text[-1] if text else ""
+        if end_punctuation in ["。", "！", "？", "!", "?", "."] and len(clean_text) >= 2:
+            return SemanticVADResult(
+                state=SemanticState.COMPLETE,
+                confidence=0.9,
+                reason="[打断模式] 有结束标点"
+            )
+
+        # 4. 问句特征 → 完整
+        is_question = "？" in text or "?" in text or any(
+            text.endswith(q) for q in ["吗", "呢", "吧", "么"]
+        )
+        if is_question and len(clean_text) >= 2:
             return SemanticVADResult(
                 state=SemanticState.COMPLETE,
                 confidence=0.85,
-                reason="[打断模式] 包含意图关键词"
+                reason="[打断模式] 问句特征"
             )
 
-        # 3. 打断模式下，有效文本长度>=2就判断完整
+        # 5. 有效文本长度>=4 且不以待续词结尾 → 可能完整
+        if len(clean_text) >= 4:
+            # 检查是否以待续词结尾
+            ends_with_continue = False
+            for continue_word in self.INTERRUPT_CONTINUE_WORDS:
+                if clean_text.endswith(continue_word):
+                    ends_with_continue = True
+                    break
+            if not ends_with_continue:
+                return SemanticVADResult(
+                    state=SemanticState.COMPLETE,
+                    confidence=0.75,
+                    reason="[打断模式] 文本长度足够"
+                )
+
+        # 6. 有效文本长度>=2 但需要更多检查
         if len(clean_text) >= 2:
-            return SemanticVADResult(
-                state=SemanticState.COMPLETE,
-                confidence=0.8,
-                reason="[打断模式] 文本长度足够"
+            # 检查是否像完整句子（有主谓结构或明确意图）
+            # 简单检查：是否包含动词+宾语的迹象
+            has_verb_object = any(
+                verb in clean_text for verb in ["播放", "打开", "关闭", "停止", "查询", "告诉我"]
             )
-
-        # 4. 有任何实际内容，可能完整
-        if len(clean_text) >= 1:
-            return SemanticVADResult(
-                state=SemanticState.COMPLETE,
-                confidence=0.7,
-                reason="[打断模式] 有内容，判断完整"
-            )
+            if has_verb_object:
+                return SemanticVADResult(
+                    state=SemanticState.COMPLETE,
+                    confidence=0.8,
+                    reason="[打断模式] 包含完整意图"
+                )
 
         # 继续等待
         return SemanticVADResult(
