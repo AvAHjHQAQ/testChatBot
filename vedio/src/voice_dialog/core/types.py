@@ -65,6 +65,15 @@ class SemanticVADResult:
 
 
 @dataclass
+class EmotionResult:
+    """情绪识别结果"""
+    emotion: EmotionType
+    confidence: float = 1.0
+    intensity: float = 0.5  # 0-1, 情绪强度
+    details: Optional[Dict] = None
+
+
+@dataclass
 class QwenOmniResult:
     """Qwen Omni处理结果 (ASR + 语义VAD + 情绪识别)
 
@@ -85,15 +94,6 @@ class QwenOmniResult:
                 confidence=0.8,
                 intensity=0.5
             )
-
-
-@dataclass
-class EmotionResult:
-    """情绪识别结果"""
-    emotion: EmotionType
-    confidence: float = 1.0
-    intensity: float = 0.5  # 0-1, 情绪强度
-    details: Optional[Dict] = None
 
 
 @dataclass
@@ -146,6 +146,7 @@ class LLMResponse:
     tool_results: List[ToolResult] = field(default_factory=list)
     final_response: str = ""  # 工具调用后的总结响应
     emotion_adapted: bool = False  # 是否进行了情绪适配
+    llm_emotion: EmotionType = EmotionType.NEUTRAL  # 大模型情绪类型
 
 
 @dataclass
@@ -180,6 +181,9 @@ class DialogResult:
     # 工具调用
     tool_calls: List[ToolCall] = field(default_factory=list)
     tool_results: List[ToolResult] = field(default_factory=list)
+
+    # 大模型情绪
+    llm_emotion: EmotionType = EmotionType.NEUTRAL  # 大模型情绪类型
 
     def to_dict(self) -> Dict:
         return {
