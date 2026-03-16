@@ -312,8 +312,17 @@ class QwenASRProcessor:
         logger.info(f"[ASR] 收到声学VAD音频流, 时间: {receive_time:.0f}ms, 数据大小: {len(audio_chunk)} bytes")
 
         if not self._is_streaming:
-            logger.warning("ASR 流式会话未启动")
-            return None
+            # v3.10: 尝试自动启动ASR（容错机制）
+            logger.warning("ASR 流式会话未启动，尝试自动启动...")
+            try:
+                success = await self.start_stream()
+                if not success:
+                    logger.error("ASR 自动启动失败，跳过此音频块")
+                    return None
+                logger.info("ASR 自动启动成功")
+            except Exception as e:
+                logger.error(f"ASR 自动启动异常: {e}")
+                return None
 
         if not HAS_DASHSCOPE or not self.api_key:
             # 模拟模式

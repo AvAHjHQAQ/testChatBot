@@ -150,6 +150,7 @@ class VoiceDialogSystem:
         self._audio_sequence = 0  # 音频序列号，确保播放顺序
         self._pending_audio_queue: List[tuple] = []  # 待发送的音频队列 (序列号, 音频数据)
         self._asr_first_response_time: Optional[float] = None  # v3.7: ASR首次响应时间
+        self._asr_start_failed = False  # v3.10: ASR启动失败标志
 
         # ========== v3.6 暂停/恢复机制 ==========
         self._is_paused = False  # 是否暂停发送给前端
@@ -304,14 +305,27 @@ class VoiceDialogSystem:
 
                 # 新的语音段开始
                 is_interrupt_mode = self._is_interrupted
-                await self._start_streaming(interrupt_mode=is_interrupt_mode)
-                self._is_streaming = True
-                self._streaming_start_time = current_time
-                self._silence_start_time = None
-                self._is_interrupted = False
-                self._first_asr_received = False
-                await self.dialog_state.transition_to(DialogState.LISTENING, "检测到语音")
-                logger.info(f"语音段开始 (时间: {current_time:.0f}ms)")
+                
+                # v3.10: 确保ASR启动成功后再设置标志
+                try:
+                    asr_started = await self.asr_processor.start_stream(self._on_asr_result)
+                    if asr_started:
+                        self._is_streaming = True
+                        self._asr_start_failed = False
+                        self._streaming_start_time = current_time
+                        self._silence_start_time = None
+                        self._is_interrupted = False
+                        self._first_asr_received = False
+                        await self.dialog_state.transition_to(DialogState.LISTENING, "检测到语音")
+                        logger.info(f"语音段开始 (时间: {current_time:.0f}ms)")
+                    else:
+                        logger.error("ASR启动失败，跳过此语音段")
+                        self._asr_start_failed = True
+                except Exception as e:
+                    logger.error(f"ASR启动异常: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    self._asr_start_failed = True
 
             self._last_speech_time = current_time
             self._silence_start_time = None
@@ -361,7 +375,7 @@ class VoiceDialogSystem:
         v3.6: 声学VAD检测到用户说话时，暂停前端显示和播放
         - 后端的LLM和TTS任务继续运行，只是不发送给前端
         - 等待语义VAD判断后再决定是正式打断还是恢复
-        v3.9: 优化流畅性，但确保ASR启动顺序正确
+        v3.10: 确保ASR完全启动后再设置streaming标志，避免"ASR流式会话未启动"错误
         """
         import time
 
@@ -375,10 +389,34 @@ class VoiceDialogSystem:
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
 
-        # v3.9: 先启动流式处理（包含ASR启动和音频回溯），再并行执行其他初始化
-        # 这样可以确保ASR正确接收到缓存的音频
-        await self._start_streaming(interrupt_mode=True)
-        self._is_streaming = True
+        # v3.10: 先启动ASR，等待完全启动成功
+        try:
+            asr_started = await self.asr_processor.start_stream(self._on_asr_result)
+            if not asr_started:
+                logger.error("[打断] ASR启动失败，取消打断确认")
+                self._interrupt_confirm_mode = False
+                self._asr_start_failed = True
+                return None
+            
+            # ASR启动成功，设置streaming标志
+            self._is_streaming = True
+            self._asr_start_failed = False
+            logger.info("[打断] ASR已成功启动")
+            
+            # 回溯缓存的音频到ASR，避免丢失语音开头
+            cached_audio = self.acoustic_vad.get_interrupt_audio_buffer()
+            if cached_audio:
+                logger.info(f"[打断] 回溯缓存音频到ASR: {len(cached_audio)} bytes ({len(cached_audio) / 32:.0f}ms)")
+                await self.asr_processor.process_chunk(cached_audio)
+                self.acoustic_vad.clear_interrupt_audio_buffer()
+            
+        except Exception as e:
+            logger.error(f"[打断] ASR启动异常: {e}")
+            import traceback
+            traceback.print_exc()
+            self._interrupt_confirm_mode = False
+            self._asr_start_failed = True
+            return None
 
         # 并行执行暂停前端和其他初始化
         await asyncio.gather(
@@ -722,7 +760,12 @@ class VoiceDialogSystem:
             traceback.print_exc()
 
     async def _process_audio_parallel(self, audio_chunk: bytes):
-        """并行处理音频"""
+        """并行处理音频 - v3.10: 增加ASR状态检查"""
+        # 检查ASR是否真正启动
+        if not self.asr_processor.is_streaming:
+            logger.warning("[音频处理] ASR未启动，跳过音频处理")
+            return
+        
         await asyncio.gather(
             self.asr_processor.process_chunk(audio_chunk),
             self.emotion_recognizer.process_audio(audio_chunk)
@@ -1252,6 +1295,7 @@ class VoiceDialogSystem:
         self._should_stop_llm = False  # 重置LLM停止标志
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
+        self._asr_start_failed = False  # v3.10: 重置ASR启动失败标志
 
         # v3.6: 重置暂停状态
         self._is_paused = False

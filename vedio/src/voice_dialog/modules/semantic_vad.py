@@ -179,7 +179,7 @@ class SemanticVADProcessor:
             if result.state == SemanticState.COMPLETE:
                 self._last_state = result.state
                 self._last_confidence = result.confidence
-                logger.info(f"[打断模式] 快速判断完整: '{text}'")
+                logger.info(f"[打断模式] 快速判断完整: '{text}' 原因: {result.reason}")
                 return result
 
         # 如果是最终结果，使用更宽松的判断
