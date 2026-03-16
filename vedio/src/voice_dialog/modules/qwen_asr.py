@@ -10,12 +10,20 @@
 """
 import asyncio
 import json
+import base64
+
 from typing import Optional, Callable, AsyncIterator
 from ..core.logger import logger
 
 try:
     import dashscope
     from dashscope.audio.asr import Recognition, RecognitionCallback
+    from dashscope.audio.qwen_omni.omni_realtime import (
+        OmniRealtimeConversation,
+        OmniRealtimeCallback,
+        TranscriptionParams
+    )
+    from dashscope.audio.qwen_omni import MultiModality
     HAS_DASHSCOPE = True
 except ImportError:
     HAS_DASHSCOPE = False
@@ -84,6 +92,75 @@ class StreamingASRCallback(RecognitionCallback):
         self.is_complete = True
 
 
+class OmniAsrCallback(OmniRealtimeCallback):
+    """基于qwen3-asr-flash-realtime实时识别模型，回调处理器"""
+
+    def __init__(self, on_result: Optional[Callable] = None):
+        self.result_text = ""
+        self.partial_text = ""
+        self.is_complete = False
+        self.error = None
+        self._stopped = False
+        self._on_result = on_result
+        self._loop = None
+        self._result_queue = []
+
+    def set_loop(self, loop):
+        self._loop = loop
+
+    def on_open(self):
+        logger.debug("Omni ASR 流式连结已打开")
+
+    def on_close(self, code, msg):
+        logger.debug(f"Omni ASR 流式连接已关闭，code: {code}, msg: {msg}")
+        self.is_complete = True
+        self._stopped = True
+
+    def on_event(self, response):
+        """流式结果识别"""
+        try:
+            if response['type'] == 'conversation.item.input_audio_transcription.text':
+                # 部分结果
+                stash_text = response.get('stash', '')
+                logger.info(f'ASR情绪识别：{response.get("emotion", "")}')
+                if stash_text:
+                    self.partial_text = stash_text
+                    self.result_text = stash_text
+                    logger.debug(f'Omni ASR 流式结果：{stash_text}')
+
+                    if self._on_result and self._loop:
+                        self._loop.call_soon_threadsafe(
+                            lambda: asyncio.create_task(
+                                self._on_result(stash_text, is_final=False)
+                            )
+                        )
+                    elif self._on_result:
+                        self._result_queue.append((stash_text, False))
+
+                elif response['type'] == 'conversation.item.input_audio_transcription.completed':
+                    # 最终结果
+                    final_text = response.get('transcript', '')
+                    if final_text:
+                        self.result_text = final_text
+                        logger.debug(f"Omni ASR 最终结果：{final_text}")
+
+                        if self._on_result and self._loop:
+                            self._loop.call_soon_threadsafe(
+                                lambda: asyncio.create_task(
+                                    self._on_result(final_text, is_final=True)
+                                )
+                            )
+                        elif self._on_result:
+                            self._result_queue.append((final_text, True))
+        except Exception as e:
+            logger.error(f"Omni ASR 回调错误: {e}")
+
+    def on_error(self, error):
+        logger.error(f"Omni ASR 错误：{error}")
+        self.error = error
+        self.is_complete = True
+
+
 class QwenASRProcessor:
     """
     Qwen ASR 17B 流式处理器
@@ -93,17 +170,20 @@ class QwenASRProcessor:
     流式输出文本结果
     """
 
-    # 使用 Paraformer 实时识别
+    # 使用 Paraformer 实时识别，或基于qwen3-asr-flash-realtime
     MODEL_NAME = "paraformer-realtime-v2"
     FRAME_DURATION_MS = 20  # 帧长20ms
+    DEFAULT_URL = "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
 
     def __init__(self):
         self.config = get_config().qwen_asr if hasattr(get_config(), 'qwen_asr') else {}
         self.api_key = self.config.get("api_key", "") or get_config().qwen_omni.get("api_key", "")
         self.model = self.config.get("model", self.MODEL_NAME)
         self.frame_duration_ms = self.config.get("frame_duration_ms", self.FRAME_DURATION_MS)
+        self.url = self.config.get("url", self.DEFAULT_URL)
 
         self._recognition = None
+        self._conversation = None
         self._callback = None
         self._is_streaming = False
         self._text_buffer = ""
@@ -122,6 +202,71 @@ class QwenASRProcessor:
         else:
             logger.warning("未配置 API 密钥，将使用模拟模式")
 
+
+    async def start_stream_paraformer(self, on_result: Optional[Callable] = None) -> bool:
+        try:
+            # 获取当前事件循环
+            loop = asyncio.get_running_loop()
+
+            self._callback = StreamingASRCallback(on_result)
+            self._callback.set_loop(loop)  # 设置事件循环引用
+
+            self._recognition = Recognition(
+                model=self.model,
+                callback=self._callback,
+                format='pcm',
+                sample_rate=16000
+            )
+
+            self._recognition.start()
+            self._is_streaming = True
+            self._text_buffer = ""
+
+            logger.info("ASR 流式会话已启动")
+            return True
+
+        except Exception as e:
+            logger.error(f"启动 ASR 流式会话失败: {e}")
+            return False
+            
+    async def start_stream_qwen(self, on_result: Optional[Callable] = None) -> bool:
+        try:
+            # 获取当前事件循环
+            loop = asyncio.get_running_loop()
+
+            self._callback = OmniAsrCallback(on_result)
+            self._callback.set_loop(loop)  # 设置事件循环引用
+
+            self._conversation = OmniRealtimeConversation(
+                model=self.model,
+                url=self.url,
+                callback=self._callback
+            )
+
+            self._conversation.connect()
+            self._is_streaming = True
+            self._text_buffer = ""
+            
+            transcription_params = TranscriptionParams(
+                language='zh',
+                sample_rate=16000,
+                input_audio_format="pcm"
+            )
+            
+            self._conversation.update_session(
+                output_modalities=[MultiModality.TEXT],
+                enable_input_audio_transcription_params=True,
+                transcription_params=transcription_params
+            )
+
+            logger.info("ASR 流式会话已启动")
+            return True
+
+        except Exception as e:
+            logger.error(f"启动 ASR 流式会话失败: {e}")
+            return False
+    
+    
     async def start_stream(self, on_result: Optional[Callable] = None) -> bool:
         """
         开始流式识别会话
@@ -147,30 +292,10 @@ class QwenASRProcessor:
             self._text_buffer = ""
             return True
 
-        try:
-            # 获取当前事件循环
-            loop = asyncio.get_running_loop()
-
-            self._callback = StreamingASRCallback(on_result)
-            self._callback.set_loop(loop)  # 设置事件循环引用
-
-            self._recognition = Recognition(
-                model=self.model,
-                callback=self._callback,
-                format='pcm',
-                sample_rate=16000
-            )
-
-            self._recognition.start()
-            self._is_streaming = True
-            self._text_buffer = ""
-
-            logger.info("ASR 流式会话已启动")
-            return True
-
-        except Exception as e:
-            logger.error(f"启动 ASR 流式会话失败: {e}")
-            return False
+        if 'qwen' in self.model:
+            return await self.start_stream_qwen(on_result)
+        else :
+            return await self.start_stream_paraformer(on_result)
 
     async def process_chunk(self, audio_chunk: bytes) -> Optional[str]:
         """
@@ -198,6 +323,9 @@ class QwenASRProcessor:
             # 发送音频帧到识别器
             if self._recognition:
                 self._recognition.send_audio_frame(audio_chunk)
+            if self._conversation:
+                audio_b64 = base64.b64encode(audio_chunk).decode('ascii')
+                self._conversation.append_audio(audio_b64)
 
             # 返回当前部分结果
             return self._callback.partial_text if self._callback else None
@@ -230,6 +358,10 @@ class QwenASRProcessor:
             # 停止识别
             if self._recognition and self._callback and not self._callback._stopped:
                 self._recognition.stop()
+                
+            if self._conversation and self._callback and not self._callback._stopped:
+                self._conversation.end_session()
+                self._conversation.close()
 
             final_text = self._callback.result_text if self._callback else ""
             logger.info(f"ASR 流式会话结束，最终结果: '{final_text}'")
