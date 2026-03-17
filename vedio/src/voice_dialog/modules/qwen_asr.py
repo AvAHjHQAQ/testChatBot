@@ -125,7 +125,9 @@ class OmniAsrCallback(OmniRealtimeCallback):
     def on_event(self, response):
         """流式结果识别"""
         try:
-            if response['type'] == 'conversation.item.input_audio_transcription.text':
+            response_type = response.get('type', '')
+
+            if response_type == 'conversation.item.input_audio_transcription.text':
                 # 部分结果
                 stash_text = response.get('stash', '')
                 logger.info(f'ASR情绪识别：{response.get("emotion", "")}')
@@ -149,27 +151,27 @@ class OmniAsrCallback(OmniRealtimeCallback):
                     elif self._on_result:
                         self._result_queue.append((stash_text, False))
 
-                elif response['type'] == 'conversation.item.input_audio_transcription.completed':
-                    # 最终结果
-                    final_text = response.get('transcript', '')
-                    if final_text:
-                        self.result_text = final_text
-                        logger.debug(f"Omni ASR 最终结果：{final_text}")
+            elif response_type == 'conversation.item.input_audio_transcription.completed':
+                # 最终结果
+                final_text = response.get('transcript', '')
+                if final_text:
+                    self.result_text = final_text
+                    logger.debug(f"Omni ASR 最终结果：{final_text}")
 
-                        if self._on_result and self._loop and not self._loop.is_closed():
-                            try:
-                                self._loop.call_soon_threadsafe(
-                                    lambda f=final_text: asyncio.create_task(
-                                        self._on_result(f, is_final=True)
-                                    )
+                    if self._on_result and self._loop and not self._loop.is_closed():
+                        try:
+                            self._loop.call_soon_threadsafe(
+                                lambda f=final_text: asyncio.create_task(
+                                    self._on_result(f, is_final=True)
                                 )
-                            except RuntimeError as e:
-                                if "Event loop is closed" in str(e):
-                                    logger.warning("Omni ASR 回调时事件循环已关闭，跳过此次回调")
-                                else:
-                                    raise
-                        elif self._on_result:
-                            self._result_queue.append((final_text, True))
+                            )
+                        except RuntimeError as e:
+                            if "Event loop is closed" in str(e):
+                                logger.warning("Omni ASR 回调时事件循环已关闭，跳过此次回调")
+                            else:
+                                raise
+                    elif self._on_result:
+                        self._result_queue.append((final_text, True))
         except Exception as e:
             logger.error(f"Omni ASR 回调错误: {e}")
 

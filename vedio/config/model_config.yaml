@@ -5,8 +5,10 @@
 # Qwen ASR 17B 配置 (独立ASR模块 - 流式)
 QWEN_ASR:
   api_key: "${DASHSCOPE_API_KEY}"
-  base_url: "https://dashscope.aliyuncs.com/api-ws/v1/realtime"
-  model: "paraformer-realtime-v2"  # Paraformer 实时语音识别
+  # base_url: "https://dashscope.aliyuncs.com/api-ws/v1/realtime"
+  # model: "paraformer-realtime-v2"  # Paraformer 实时语音识别
+  base_url: "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
+  model: "qwen3-asr-flash-realtime"  # Qwen ASR 17B 实时识别
   frame_duration_ms: 20            # 帧长20ms
   sample_rate: 16000
   format: "pcm"
@@ -27,8 +29,8 @@ SEMANTIC_VAD:
   threshold: 0.7
   # 流式判断配置
   streaming:
-    min_text_length: 2      # 最小文本长度才开始判断（保持2，支持"继续"等短句）
-    max_wait_ms: 10000      # 最大等待时间（10秒）
+    min_text_length: 2      # 最小文本长度才开始判断
+    max_wait_ms: 5000      # 最大等待时间（5秒） # 这两个参数没用到
   states:
     - "complete"      # 用户说完
     - "continuing"    # 用户继续说

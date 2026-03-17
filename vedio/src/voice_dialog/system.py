@@ -65,10 +65,10 @@ class VoiceDialogSystem:
     """
 
     # 超时配置（毫秒）
-    MAX_SILENCE_WAIT_MS = 4000  # 最大静音等待时间（增加到4秒）
-    MIN_SPEECH_DURATION_MS = 500  # 最小语音时长（增加到500ms）
-    INTERRUPT_CONFIRM_TIMEOUT_MS = 2000  # 打断确认超时时间（增加到2秒）
-    SILENCE_THRESHOLD_MS = 1500  # 静音检测阈值（增加到1.5秒）
+    MAX_SILENCE_WAIT_MS = 2000  # 最大静音等待时间
+    MIN_SPEECH_DURATION_MS = 300  # 最小语音时长 # 没用到该参数
+    INTERRUPT_CONFIRM_TIMEOUT_MS = 1500  # 打断确认超时时间
+    SILENCE_THRESHOLD_MS = 500  # 静音检测阈值
 
     def __init__(self):
         self.config = get_config()
@@ -314,8 +314,7 @@ class VoiceDialogSystem:
                 finalize_reason = f"静音超时({silence_elapsed:.0f}ms)"
 
             # 条件3: 有足够文本且静音超过阈值
-            # v3.6: 降低文本长度要求到2，支持短文本输入
-            elif silence_elapsed >= self.SILENCE_THRESHOLD_MS and len(self._asr_text_buffer) >= 2:
+            elif silence_elapsed >= self.SILENCE_THRESHOLD_MS and len(self._asr_text_buffer) >= 5:
                 should_finalize = True
                 finalize_reason = "静音+文本充足"
 
@@ -387,8 +386,7 @@ class VoiceDialogSystem:
         # 文本为空，检查是否超时
         if not text:
             # 如果已经等待了足够长时间且没有文本，可能是噪声（咳嗽等）
-            # v3.6: 增加到 1200ms，给 ASR 更多时间识别
-            if elapsed > 1200:  # 1200ms没有识别出文本，很可能是噪声
+            if elapsed > 800:  # 800ms没有识别出文本，很可能是噪声
                 logger.info(f"[打断] 长时间无有效文本，判断为噪声，取消打断")
                 return "noise"
             return "pending"
@@ -634,12 +632,27 @@ class VoiceDialogSystem:
             await self.dialog_state.force_state(DialogState.PROCESSING, "语音段结束")
 
         try:
-            # 1. 获取最终ASR结果
+            # 1. 保存当前缓冲区文本（在stop_stream之前，避免被后续回调覆盖）
+            buffered_text = self._asr_text_buffer.strip()
+
+            # 2. 获取最终ASR结果
             latency_tracker.mark_end("asr_streaming")
             asr_result = await self.asr_processor.stop_stream()
-            recognized_text = asr_result.text
+            asr_final_text = asr_result.text.strip()
 
-            logger.info(f"ASR最终结果: '{recognized_text}'")
+            # 3. 智能合并文本：优先使用更完整的文本
+            # ASR的stash_text是逐句更新的，后面的句子可能覆盖前面的句子
+            # 如果缓冲区文本比ASR最终结果更长或包含更多内容，使用缓冲区文本
+            if buffered_text and len(buffered_text) >= len(asr_final_text):
+                recognized_text = buffered_text
+                logger.info(f"使用缓冲区文本（更完整）: '{recognized_text}'")
+            elif buffered_text and asr_final_text and not buffered_text.endswith(asr_final_text) and not asr_final_text.startswith(buffered_text):
+                # 如果两个文本不重叠，尝试合并
+                recognized_text = buffered_text + asr_final_text
+                logger.info(f"合并缓冲区和ASR结果: '{recognized_text}'")
+            else:
+                recognized_text = asr_final_text
+                logger.info(f"ASR最终结果: '{recognized_text}'")
 
             # 更新时延追踪的最终文本
             latency_tracker.update_text(recognized_text)
