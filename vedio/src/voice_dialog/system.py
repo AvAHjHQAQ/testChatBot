@@ -234,9 +234,10 @@ class VoiceDialogSystem:
                 await self._stop_tts_for_interrupt()
 
             elif interrupt_result == "complete":
-                # 语义完整，结束打断确认，进入LLM处理
-                logger.info(f"[打断] 语义完整，进入LLM处理: '{self._asr_text_buffer}'")
-                return await self._finalize_interrupt_to_llm()
+                # 语义完整，但需要检查用户是否还在说话
+                # v3.6: 不立即进入LLM，等待静音或超时
+                logger.info(f"[打断] 语义完整，等待用户说完: '{self._asr_text_buffer}'")
+                # 继续接收音频，由静音检测触发LLM处理
 
             elif interrupt_result in ["filler", "noise"]:
                 # 非有效人声（咳嗽、嗯等），取消打断，继续播报
@@ -254,14 +255,32 @@ class VoiceDialogSystem:
                     logger.info("[打断] 超时无有效内容，取消打断，继续播报")
                     self._cancel_interrupt_confirmation()
 
+            # v3.6: 在打断确认模式下，也检测静音来判断用户是否说完
+            # 使用声学VAD检测静音
+            vad_result = await self.acoustic_vad.process_chunk(audio_chunk)
+            if vad_result["event"] == "silence_detected":
+                silence_duration = vad_result.get("silence_duration", 0)
+                # 如果静音超过500ms且有ASR文本，认为用户说完了
+                if silence_duration > 500 and self._asr_text_buffer.strip():
+                    logger.info(f"[打断] 检测到静音({silence_duration:.0f}ms)，用户说完，进入LLM: '{self._asr_text_buffer}'")
+                    return await self._finalize_interrupt_to_llm()
+
             return None
 
         # ========== 2. SPEAKING/THINKING状态下检测打断 ==========
         # v3.4: 扩展到 THINKING 状态，允许在 LLM 推理期间打断
         if self.dialog_state.state in [DialogState.SPEAKING, DialogState.THINKING]:
             if self.acoustic_vad.check_interrupt(audio_chunk):
+                # v3.6: 先处理当前音频块，不要丢弃
                 # 检测到人声，启动打断确认模式
-                return await self._start_interrupt_confirmation()
+                logger.info(f"[打断] 检测到人声，当前音频块需要处理")
+                result = await self._start_interrupt_confirmation()
+                # 如果成功进入打断确认模式，处理当前音频块
+                if self._interrupt_confirm_mode:
+                    # 将当前音频块发送给ASR处理
+                    await self._process_audio_parallel(audio_chunk)
+                    logger.debug(f"[打断] 已处理当前音频块")
+                return result
 
         # ========== 3. 声学VAD处理 ==========
         vad_result = await self.acoustic_vad.process_chunk(audio_chunk)
@@ -362,7 +381,7 @@ class VoiceDialogSystem:
         """
         检查打断确认结果
 
-        v3.3: 优化打断逻辑
+        v3.6: 优化判断逻辑，减少误判
         - 有效人声：停止TTS，继续接收用户输入
         - 非有效人声（咳嗽、嗯等）：取消打断，继续播报
         - 待判断：继续等待
@@ -385,8 +404,8 @@ class VoiceDialogSystem:
 
         # 文本为空，检查是否超时
         if not text:
-            # 如果已经等待了足够长时间且没有文本，可能是噪声（咳嗽等）
-            if elapsed > 800:  # 800ms没有识别出文本，很可能是噪声
+            # v3.6: 延长等待时间，给ASR更多时间识别
+            if elapsed > 1200:  # 从800ms增加到1200ms
                 logger.info(f"[打断] 长时间无有效文本，判断为噪声，取消打断")
                 return "noise"
             return "pending"
@@ -410,14 +429,21 @@ class VoiceDialogSystem:
             logger.info(f"[打断] 检测到噪声，取消打断")
             return "noise"
 
+        # v3.6: 移除过于严格的短文本判断
+        # 之前的逻辑：文本<=2字符且等待>500ms就判断为噪声
+        # 这会导致用户刚开始说话时被误判
+        # 现在改为：只有当文本完全是语气词时才判断为噪声
+        
         # 检查文本内容是否像噪声/非有效人声
-        # 如果文本很短且全是重复字符或语气词，可能是噪声
-        if len(text) <= 2 and elapsed > 500:
+        # 只有当文本很短且全是重复字符或语气词时，才可能是噪声
+        if len(text) <= 2 and elapsed > 800:  # 从500ms增加到800ms
             # 检查是否是重复字符或常见语气词
             noise_patterns = ["嗯", "啊", "呃", "额", "咳", "哼", "哈"]
             if all(c in noise_patterns for c in text):
                 logger.info(f"[打断] 短文本判断为噪声: '{text}'，取消打断")
                 return "noise"
+            # v3.6: 如果不是纯语气词，继续等待，不要误判
+            logger.debug(f"[打断] 短文本继续等待: '{text}'")
 
         return "pending"
 
