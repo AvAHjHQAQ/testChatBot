@@ -133,6 +133,10 @@ class VoiceDialogSystem:
         self._audio_processor_task: Optional[asyncio.Task] = None  # 音频处理后台任务
         self._is_processing_audio = False  # 是否正在处理音频
 
+        # ========== TTS 开关控制 ==========
+        self._tts_enabled = True  # TTS 默认开启
+        self._on_tts_state_change_callbacks: List[Callable] = []  # TTS 状态变化回调
+
         # 添加状态监听
         self.dialog_state.add_listener(self._on_state_change)
 
@@ -331,6 +335,8 @@ class VoiceDialogSystem:
         v3.5: THINKING 和 SPEAKING 状态都等待语义VAD确认后才停止TTS
         - 声学VAD只是触发确认模式，不直接停止
         - 语义VAD确认有效人声后才真正停止TTS/LLM
+
+        v3.6: 不清空 ASR 缓冲区，保留之前的内容
         """
         import time
 
@@ -343,7 +349,8 @@ class VoiceDialogSystem:
         self._interrupt_confirm_mode = True
         self._interrupt_start_time = time.time() * 1000
         self._tts_stopped_for_interrupt = False
-        self._asr_text_buffer = ""
+        # 不清空 ASR 缓冲区，保留之前的内容
+        # self._asr_text_buffer = ""  # 注释掉，避免清除之前的内容
 
         # 启动流式处理（打断模式）
         await self._start_streaming(interrupt_mode=True)
@@ -517,11 +524,14 @@ class VoiceDialogSystem:
     def _cancel_interrupt_confirmation(self):
         """
         取消打断确认模式，继续播报
+
+        v3.6: 不清空 ASR 缓冲区，保留之前的内容
         """
         self._interrupt_confirm_mode = False
         self._is_streaming = False
         self._tts_stopped_for_interrupt = False
-        self._asr_text_buffer = ""  # 清空ASR文本缓冲区
+        # 不清空 ASR 缓冲区，保留之前的内容
+        # self._asr_text_buffer = ""  # 注释掉，避免清除之前的内容
         self._first_asr_received = False  # 重置ASR首字标记
         self._should_stop_llm = False  # 重置LLM停止标志
 
@@ -599,7 +609,6 @@ class VoiceDialogSystem:
 
             if semantic_result.state == SemanticState.COMPLETE:
                 logger.info(f"语义完整: '{text}'")
-
     async def _finalize_streaming(self) -> Optional[DialogResult]:
         """
         结束流式处理，进入融合阶段
@@ -742,9 +751,15 @@ class VoiceDialogSystem:
                 return
             await self._notify_audio_chunk(audio_data)
 
-        # 创建流式TTS处理器并启动消费者任务
-        self._streaming_tts = StreamingTTSProcessor(on_audio_chunk=on_audio_chunk)
-        await self._streaming_tts.start()  # v3.4: 启动消费者任务
+        # 检查 TTS 是否启用
+        if not self._tts_enabled:
+            logger.info("[TTS] TTS 已禁用，跳过语音合成")
+            # TTS 禁用时，只进行文本处理，不生成音频
+            self._streaming_tts = None
+        else:
+            # 创建流式TTS处理器并启动消费者任务
+            self._streaming_tts = StreamingTTSProcessor(on_audio_chunk=on_audio_chunk)
+            await self._streaming_tts.start()  # v3.4: 启动消费者任务
 
         # 收集完整响应文本
         response_text_parts = []
@@ -764,8 +779,8 @@ class VoiceDialogSystem:
                 return
                 
             response_text_parts.append(chunk)
-            # 非阻塞放入TTS队列（使用put_nowait，不等待）
-            if self._streaming_tts and not self._streaming_tts._should_stop:
+            # 只有在 TTS 启用时才添加到队列
+            if self._tts_enabled and self._streaming_tts and not self._streaming_tts._should_stop:
                 try:
                     self._streaming_tts.add_text_nowait(chunk)
                 except asyncio.QueueFull:
@@ -1104,6 +1119,55 @@ class VoiceDialogSystem:
                 callback(data)
             except Exception as e:
                 logger.error(f"时延更新回调错误: {e}")
+
+    # ========== TTS 开关控制 ==========
+
+    def enable_tts(self):
+        """启用 TTS 语音播放"""
+        if not self._tts_enabled:
+            self._tts_enabled = True
+            logger.info("TTS 已启用")
+            self._notify_tts_state_change(True)
+
+    def disable_tts(self):
+        """禁用 TTS 语音播放"""
+        if self._tts_enabled:
+            self._tts_enabled = False
+            logger.info("TTS 已禁用")
+            # 停止当前正在播放的 TTS
+            if self._streaming_tts:
+                self._streaming_tts.stop()
+            self._notify_tts_state_change(False)
+
+    def toggle_tts(self) -> bool:
+        """
+        切换 TTS 开关状态
+
+        Returns:
+            切换后的状态 (True=启用, False=禁用)
+        """
+        if self._tts_enabled:
+            self.disable_tts()
+        else:
+            self.enable_tts()
+        return self._tts_enabled
+
+    @property
+    def tts_enabled(self) -> bool:
+        """获取 TTS 是否启用"""
+        return self._tts_enabled
+
+    def on_tts_state_change(self, callback: Callable):
+        """注册 TTS 状态变化回调"""
+        self._on_tts_state_change_callbacks.append(callback)
+
+    def _notify_tts_state_change(self, enabled: bool):
+        """通知 TTS 状态变化"""
+        for callback in self._on_tts_state_change_callbacks:
+            try:
+                callback(enabled)
+            except Exception as e:
+                logger.error(f"TTS 状态变化回调错误: {e}")
 
     def reset(self):
         """重置系统"""
