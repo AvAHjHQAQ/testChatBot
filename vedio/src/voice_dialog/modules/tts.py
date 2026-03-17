@@ -1,5 +1,5 @@
 """
-全双工语音对话系统 v3.3 - TTS模块
+全双工语音对话系统 v3.6 - TTS模块
 
 支持：
 - Qwen3 TTS（默认，v3.3更新）
@@ -7,16 +7,16 @@
 - 流式TTS播放
 - LLM流式输出实时转语音
 
-v3.3 更新：
-- 将TTS模型替换为 Qwen3-tts
-- 使用 DashScope MultiModalConversation API
-- 支持流式和非流式输出
+v3.6 更新：
+- 使用进程池执行器实现真正的并行
+- 解决Python GIL限制问题
 """
 import asyncio
 import io
 import re
 import base64
 import os
+from concurrent.futures import ProcessPoolExecutor
 from typing import Optional, Callable, AsyncIterator, List
 from ..core.logger import logger
 
@@ -30,6 +30,56 @@ try:
 except ImportError:
     HAS_DASHSCOPE = False
     logger.warning("dashscope未安装，Qwen3 TTS将不可用")
+
+
+# 全局进程池执行器
+_process_pool: ProcessPoolExecutor = None
+
+
+def get_process_pool() -> ProcessPoolExecutor:
+    """获取全局进程池执行器"""
+    global _process_pool
+    if _process_pool is None:
+        max_workers = min(os.cpu_count() or 4, 4)
+        _process_pool = ProcessPoolExecutor(max_workers=max_workers)
+        logger.info(f"[TTS] 进程池执行器已创建，工作进程数: {max_workers}")
+    return _process_pool
+
+
+def _qwen3_tts_stream_sync(text: str, voice: str) -> bytes:
+    """
+    Qwen3 TTS流式合成函数（在独立进程中执行）
+
+    注意：此函数必须是模块级函数，不能是类方法，否则无法被pickle序列化
+
+    Returns:
+        音频数据 (bytes)
+    """
+    audio_data = b""
+    try:
+        # 调用Qwen3 TTS流式API（同步调用）
+        response = MultiModalConversation.call(
+            model="qwen3-tts-flash",
+            text=text,
+            voice=voice,
+            language_type="Chinese",
+            stream=True
+        )
+
+        # 收集流式输出的音频数据（同步迭代）
+        for chunk in response:
+            if chunk.output is not None:
+                audio = chunk.output.audio
+                if audio and hasattr(audio, 'data') and audio.data:
+                    # Base64解码音频数据
+                    wav_bytes = base64.b64decode(audio.data)
+                    audio_data += wav_bytes
+
+        return audio_data
+
+    except Exception as e:
+        logger.error(f"[TTS] Qwen3 TTS流式合成失败: {e}")
+        return b""
 
 
 def clean_text_for_tts(text: str) -> str:
@@ -748,42 +798,23 @@ class StreamingTTSProcessor:
         return "", self._text_buffer
 
     async def _synthesize_qwen3_stream(self, text: str, sentence_num: int) -> bytes:
-        """使用Qwen3 TTS流式合成（在线程池中执行，不阻塞事件循环）"""
-        # 定义同步合成函数
-        def _sync_synthesize():
-            audio_data = b""
-            try:
-                # 调用Qwen3 TTS流式API（同步调用）
-                response = MultiModalConversation.call(
-                    model="qwen3-tts-flash",
-                    text=text,
-                    voice=self.voice,
-                    language_type="Chinese",
-                    stream=True
-                )
+        """
+        使用Qwen3 TTS流式合成（在独立进程中执行，不阻塞事件循环）
 
-                # 收集流式输出的音频数据（同步迭代）
-                for chunk in response:
-                    if self._should_stop:
-                        break
-
-                    if chunk.output is not None:
-                        audio = chunk.output.audio
-                        if audio and hasattr(audio, 'data') and audio.data:
-                            # Base64解码音频数据
-                            wav_bytes = base64.b64decode(audio.data)
-                            audio_data += wav_bytes
-
-                return audio_data
-
-            except Exception as e:
-                logger.error(f"[TTS] Qwen3 TTS流式合成失败: {e}")
-                return b""
-
-        # 在线程池中执行同步合成，不阻塞事件循环
+        v3.6: 使用进程池执行器实现真正的并行，解决GIL限制
+        """
+        # 使用进程池执行器，在独立进程中执行TTS调用
         loop = asyncio.get_running_loop()
+        pool = get_process_pool()
+
         try:
-            audio_data = await loop.run_in_executor(None, _sync_synthesize)
+            # 在独立进程中执行流式TTS调用
+            audio_data = await loop.run_in_executor(
+                pool,
+                _qwen3_tts_stream_sync,
+                text,
+                self.voice
+            )
             return audio_data
         except Exception as e:
             logger.error(f"[TTS] Qwen3 TTS执行器错误: {e}")

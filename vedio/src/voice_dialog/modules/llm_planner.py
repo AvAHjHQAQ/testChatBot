@@ -1,16 +1,19 @@
 """
-全双工语音对话系统 v3.0 - LLM任务规划器
+全双工语音对话系统 v3.6 - LLM任务规划器
 支持多轮对话上下文管理，智能工具匹配
 使用统一的工具注册中心 ToolRegistry
 
-v3.0 特性：
+v3.6 特性：
 - 自动注入当前时间
 - 情绪适配响应
 - 多轮对话上下文
+- 使用进程池执行器实现真正的并行
 """
 import asyncio
 import json
 import re
+import os
+from concurrent.futures import ProcessPoolExecutor
 from typing import Optional, List, Dict, Any, Callable
 from ..core.logger import logger
 
@@ -32,6 +35,20 @@ from ..core.types import (
 from ..core.config import get_config
 from ..core.tool_registry import tool_registry
 from .user_profile import UserIdentityRecognizer, UserType
+
+
+# 全局进程池执行器
+_process_pool: ProcessPoolExecutor = None
+
+
+def get_process_pool() -> ProcessPoolExecutor:
+    """获取全局进程池执行器"""
+    global _process_pool
+    if _process_pool is None:
+        max_workers = min(os.cpu_count() or 4, 4)
+        _process_pool = ProcessPoolExecutor(max_workers=max_workers)
+        logger.info(f"[LLM] 进程池执行器已创建，工作进程数: {max_workers}")
+    return _process_pool
 
 
 # 中国主要城市列表 - 扩展版
@@ -243,8 +260,14 @@ class LLMTaskPlanner:
             return self._mock_plan(llm_input)
 
         try:
-            # 识别用户身份
-            user_profile = self.user_recognizer.recognize(llm_input.text)
+            # 识别用户身份（在独立进程中执行，解决GIL限制）
+            loop = asyncio.get_running_loop()
+            pool = get_process_pool()
+            user_profile = await loop.run_in_executor(
+                pool,
+                self.user_recognizer.recognize,
+                llm_input.text
+            )
             user_type = user_profile.user_type
             user_confidence = user_profile.confidence
             logger.info(f"[用户身份] 类型: {user_type.value}, 置信度: {user_confidence:.2f}")
@@ -353,8 +376,14 @@ class LLMTaskPlanner:
             return response
 
         try:
-            # 识别用户身份
-            user_profile = self.user_recognizer.recognize(llm_input.text)
+            # 识别用户身份（在独立进程中执行，解决GIL限制）
+            loop = asyncio.get_running_loop()
+            pool = get_process_pool()
+            user_profile = await loop.run_in_executor(
+                pool,
+                self.user_recognizer.recognize,
+                llm_input.text
+            )
             user_type = user_profile.user_type
             user_confidence = user_profile.confidence
             logger.info(f"[用户身份] 类型: {user_type.value}, 置信度: {user_confidence:.2f}")

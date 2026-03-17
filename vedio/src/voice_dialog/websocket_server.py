@@ -1,18 +1,25 @@
 """
-全双工语音对话系统 v3.2 - WebSocket服务器
+全双工语音对话系统 v3.6 - WebSocket服务器
 支持全双工语音交互
 
-v3.2 特性：
+v3.6 特性：
 - 流式ASR + 流式语义VAD
 - 并行情绪识别
 - 打断支持
 - 实时时延监控
 - LLM流式输出
+- 真正的多进程并行执行（解决GIL限制）
+
+架构说明：
+- 主进程：WebSocket连接管理、消息路由、事件循环
+- 进程池：执行阻塞操作（TTS API调用、用户识别等）
+- 所有阻塞操作通过 run_in_executor 在独立进程中执行
 """
 import asyncio
 import json
 import base64
-from typing import Dict, Set, Callable
+from concurrent.futures import ProcessPoolExecutor
+from typing import Dict, Set, Callable, Optional
 from .core.logger import logger
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -24,7 +31,23 @@ from .system import VoiceDialogSystem
 from .core import DialogState, DialogResult, latency_tracker
 
 
-app = FastAPI(title="全双工语音对话系统 v3.2")
+# 全局进程池执行器 - 用于真正的并行执行
+_process_pool: Optional[ProcessPoolExecutor] = None
+
+
+def get_process_pool() -> ProcessPoolExecutor:
+    """获取全局进程池执行器"""
+    global _process_pool
+    if _process_pool is None:
+        import os
+        # 根据CPU核心数设置进程数，最多4个
+        max_workers = min(os.cpu_count() or 4, 4)
+        _process_pool = ProcessPoolExecutor(max_workers=max_workers)
+        logger.info(f"进程池执行器已创建，工作进程数: {max_workers}")
+    return _process_pool
+
+
+app = FastAPI(title="全双工语音对话系统 v3.6")
 
 
 class ConnectionManager:
@@ -338,7 +361,15 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
 
 async def handle_message(client_id: str, message: dict):
-    """处理JSON消息"""
+    """
+    处理JSON消息 - v3.6 多进程并行模式
+
+    核心改进：
+    - 文本输入处理作为后台任务运行
+    - 底层阻塞操作（TTS、用户识别）在独立进程中执行
+    - 不阻塞WebSocket主循环
+    - 支持在处理过程中接收打断信号
+    """
     msg_type = message.get("type", "")
     system = manager.get_system(client_id)
 
@@ -346,33 +377,37 @@ async def handle_message(client_id: str, message: dict):
         return
 
     if msg_type == "text":
-        # 文本输入
+        # 文本输入 - 创建后台任务处理
+        # 底层的阻塞操作会在独立进程中执行（通过进程池）
         text = message.get("text", "")
         if text:
-            result = await system.process_text(text)
-            # 结果会通过回调发送
+            # 创建后台任务，不等待结果
+            # process_text内部的阻塞操作会使用进程池
+            asyncio.create_task(system.process_text(text))
+            # 结果会通过回调异步发送
 
     elif msg_type == "interrupt":
-        # 打断
+        # 打断 - 需要立即响应
         await system.interrupt()
 
     elif msg_type == "reset":
-        # 重置
+        # 重置 - 需要立即响应
         system.reset()
         await manager.send_json(client_id, {"type": "reset", "data": {"success": True}})
 
     elif msg_type == "ping":
-        # 心跳
+        # 心跳 - 需要立即响应
         await manager.send_json(client_id, {"type": "pong"})
 
 
 async def handle_audio(client_id: str, audio_chunk: bytes):
     """
-    处理音频数据 - v3.5 全双工非阻塞模式
+    处理音频数据 - v3.6 多进程并行模式
 
     核心改进：
     - 音频接收与处理解耦
-    - WebSocket 主循环不再被 LLM 推理阻塞
+    - 底层阻塞操作在独立进程中执行
+    - WebSocket 主循环不再被任何处理阻塞
     - 支持在 THINKING 状态下实时打断
     """
     system = manager.get_system(client_id)
@@ -380,7 +415,9 @@ async def handle_audio(client_id: str, audio_chunk: bytes):
     if not system:
         return
 
-    # 将音频放入队列（非阻塞），后台任务持续处理
+    # 将音频放入队列（非阻塞）
+    # 后台任务会持续处理队列中的音频
+    # 底层的阻塞操作（TTS、用户识别）会在独立进程中执行
     await system.process_audio(audio_chunk)
     # 结果通过回调异步发送，不阻塞 WebSocket 主循环
 
