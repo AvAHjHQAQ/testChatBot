@@ -151,6 +151,7 @@ class VoiceDialogSystem:
         self._pending_audio_queue: List[tuple] = []  # 待发送的音频队列 (序列号, 音频数据)
         self._asr_first_response_time: Optional[float] = None  # v3.7: ASR首次响应时间
         self._asr_start_failed = False  # v3.10: ASR启动失败标志
+        self._first_interrupt_confirm_enter = True  # 是否第一次进入打断确认分支
 
         # ========== v3.6 暂停/恢复机制 ==========
         self._is_paused = False  # 是否暂停发送给前端
@@ -249,8 +250,18 @@ class VoiceDialogSystem:
 
         # ========== 1. 打断确认模式下的处理 ==========
         if self._interrupt_confirm_mode and self._is_streaming:
+            # 第一次进入打断确认分支时，将缓存音频和当前音频合并处理，避免丢失语音开头
+            audio_to_process = audio_chunk
+            if self._first_interrupt_confirm_enter:
+                self._first_interrupt_confirm_enter = False
+                cached_audio = self.acoustic_vad.get_interrupt_audio_buffer()
+                if cached_audio:
+                    logger.info(f"[打断] 回溯缓存音频到ASR: {len(cached_audio)} bytes ({len(cached_audio) / 32:.0f}ms)")
+                    audio_to_process = cached_audio + audio_chunk
+                    self.acoustic_vad.clear_interrupt_audio_buffer()
+            
             # 继续接收音频进行ASR识别
-            await self._process_audio_parallel(audio_chunk)
+            await self._process_audio_parallel(audio_to_process)
 
             # 检查是否确认打断（有效人声）
             interrupt_result = self._check_interrupt_voice_validity()
@@ -388,6 +399,7 @@ class VoiceDialogSystem:
         self._asr_text_buffer = ""
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
+        self._first_interrupt_confirm_enter = True  # 重置第一次进入打断确认分支标志
 
         # v3.10: 先启动ASR，等待完全启动成功
         try:
@@ -402,13 +414,6 @@ class VoiceDialogSystem:
             self._is_streaming = True
             self._asr_start_failed = False
             logger.info("[打断] ASR已成功启动")
-            
-            # 回溯缓存的音频到ASR，避免丢失语音开头
-            cached_audio = self.acoustic_vad.get_interrupt_audio_buffer()
-            if cached_audio:
-                logger.info(f"[打断] 回溯缓存音频到ASR: {len(cached_audio)} bytes ({len(cached_audio) / 32:.0f}ms)")
-                await self.asr_processor.process_chunk(cached_audio)
-                self.acoustic_vad.clear_interrupt_audio_buffer()
             
         except Exception as e:
             logger.error(f"[打断] ASR启动异常: {e}")
@@ -1296,6 +1301,7 @@ class VoiceDialogSystem:
         self._first_asr_received = False  # v3.7: 重置ASR响应标志
         self._asr_first_response_time = None  # v3.7: 重置ASR首次响应时间
         self._asr_start_failed = False  # v3.10: 重置ASR启动失败标志
+        self._first_interrupt_confirm_enter = True  # 重置第一次进入打断确认分支标志
 
         # v3.6: 重置暂停状态
         self._is_paused = False
