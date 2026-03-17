@@ -733,7 +733,12 @@ class VoiceDialogSystem:
         # 定义音频块回调：按句子发送音频
         async def on_audio_chunk(audio_data: bytes):
             """TTS音频块回调 - 每个句子完成后发送"""
+            # 双重检查：停止标志和TTS处理器状态
             if self._should_stop_llm:
+                logger.debug("[打断] 音频回调检测到停止标志，跳过发送")
+                return
+            if not self._streaming_tts or self._streaming_tts._should_stop:
+                logger.debug("[打断] TTS处理器已停止，跳过发送")
                 return
             await self._notify_audio_chunk(audio_data)
 
@@ -748,10 +753,16 @@ class VoiceDialogSystem:
         tts_task = None
 
         # 定义LLM文本块回调：只做非阻塞的队列放入
-        # v3.5: LLM回调完全非阻塞，立即返回，让TTS消费者独立处理
+        # v3.6: 增强打断检查，确保立即停止
         def on_llm_chunk(chunk: str):
+            # 双重检查停止标志
             if self._should_stop_llm:
+                logger.debug(f"[打断] LLM回调检测到停止标志，跳过: {chunk[:20]}...")
                 return
+            if self._tts_stopped_for_interrupt:
+                logger.debug(f"[打断] TTS已停止，跳过LLM回调: {chunk[:20]}...")
+                return
+                
             response_text_parts.append(chunk)
             # 非阻塞放入TTS队列（使用put_nowait，不等待）
             if self._streaming_tts and not self._streaming_tts._should_stop:
@@ -765,6 +776,8 @@ class VoiceDialogSystem:
         # 定义工具检测回调
         def on_tool_detected(tool_name: str):
             if self._should_stop_llm:
+                return
+            if self._tts_stopped_for_interrupt:
                 return
             logger.info(f"[工具检测] 发现工具调用: {tool_name}")
             asyncio.create_task(self._notify_tool_executing(tool_name, {}))
@@ -925,9 +938,66 @@ class VoiceDialogSystem:
         return result
 
     async def interrupt(self):
-        """手动触发打断"""
-        await self._stop_tts_for_interrupt()
+        """
+        手动触发打断 - v3.6 增强版
+        
+        确保立即停止所有流式处理：
+        1. 设置停止标志
+        2. 取消LLM任务
+        3. 停止TTS处理器
+        4. 清空音频队列
+        5. 通知前端
+        """
+        logger.info("[打断] 手动打断触发")
+        
+        # 1. 立即设置停止标志（阻止所有回调继续执行）
+        self._should_stop_llm = True
+        self._tts_stopped_for_interrupt = True
+        
+        # 2. 取消LLM流式输出任务
+        if self._llm_task and not self._llm_task.done():
+            self._llm_task.cancel()
+            try:
+                await self._llm_task
+            except asyncio.CancelledError:
+                pass
+            self._llm_task = None
+            logger.info("[打断] LLM任务已取消")
+        
+        # 3. 停止流式TTS处理器
+        if self._streaming_tts:
+            self._streaming_tts.stop()
+            self._streaming_tts = None
+            logger.info("[打断] 流式TTS处理器已停止")
+        
+        # 4. 停止TTS播放
+        self.streaming_tts.stop()
+        
+        # 5. 取消当前TTS任务
+        if self._current_tts_task and not self._current_tts_task.done():
+            self._current_tts_task.cancel()
+            self._current_tts_task = None
+            logger.info("[打断] TTS任务已取消")
+        
+        # 6. 停止ASR流
+        try:
+            await self.asr_processor.stop_stream()
+            logger.info("[打断] ASR流已停止")
+        except Exception as e:
+            logger.warning(f"[打断] 停止ASR流失败: {e}")
+        
+        # 7. 重置流式状态
+        self._is_streaming = False
+        self._interrupt_confirm_mode = False
+        self._asr_text_buffer = ""
+        
+        # 8. 通知前端清空音频队列
+        await self._notify_clear_audio()
+        
+        # 9. 强制状态为IDLE
         await self.dialog_state.force_state(DialogState.IDLE, "手动打断")
+        
+        logger.info("[打断] 所有处理已停止，系统已重置为IDLE状态")
 
     async def _on_state_change(self, old_state: DialogState, new_state: DialogState):
         """状态变化回调"""
