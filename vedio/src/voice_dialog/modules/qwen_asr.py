@@ -119,7 +119,9 @@ class OmniAsrCallback(OmniRealtimeCallback):
     def on_event(self, response):
         """流式结果识别"""
         try:
-            if response['type'] == 'conversation.item.input_audio_transcription.text':
+            response_type = response.get('type', '')
+
+            if response_type == 'conversation.item.input_audio_transcription.text':
                 # 部分结果
                 stash_text = response.get('stash', '')
                 logger.info(f'ASR情绪识别：{response.get("emotion", "")}')
@@ -137,21 +139,21 @@ class OmniAsrCallback(OmniRealtimeCallback):
                     elif self._on_result:
                         self._result_queue.append((stash_text, False))
 
-                elif response['type'] == 'conversation.item.input_audio_transcription.completed':
-                    # 最终结果
-                    final_text = response.get('transcript', '')
-                    if final_text:
-                        self.result_text = final_text
-                        logger.debug(f"Omni ASR 最终结果：{final_text}")
+            elif response_type == 'conversation.item.input_audio_transcription.completed':
+                # 最终结果
+                final_text = response.get('transcript', '')
+                if final_text:
+                    self.result_text = final_text
+                    logger.debug(f"Omni ASR 最终结果：{final_text}")
 
-                        if self._on_result and self._loop:
-                            self._loop.call_soon_threadsafe(
-                                lambda: asyncio.create_task(
-                                    self._on_result(final_text, is_final=True)
-                                )
+                    if self._on_result and self._loop:
+                        self._loop.call_soon_threadsafe(
+                            lambda: asyncio.create_task(
+                                self._on_result(final_text, is_final=True)
                             )
-                        elif self._on_result:
-                            self._result_queue.append((final_text, True))
+                        )
+                    elif self._on_result:
+                        self._result_queue.append((final_text, True))
         except Exception as e:
             logger.error(f"Omni ASR 回调错误: {e}")
 
