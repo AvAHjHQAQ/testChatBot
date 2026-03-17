@@ -5,8 +5,8 @@
 # Qwen ASR 17B 配置 (独立ASR模块 - 流式)
 QWEN_ASR:
   api_key: "${DASHSCOPE_API_KEY}"
-  # base_url: "https://dashscope.aliyuncs.com/api-ws/v1/realtime"
-  # model: "paraformer-realtime-v2"  # Paraformer 实时语音识别
+  #  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+#  model: "paraformer-realtime-v2"  # Qwen ASR 17B 实时识别
   base_url: "wss://dashscope.aliyuncs.com/api-ws/v1/realtime"
   model: "qwen3-asr-flash-realtime"  # Qwen ASR 17B 实时识别
   frame_duration_ms: 20            # 帧长20ms
@@ -30,7 +30,7 @@ SEMANTIC_VAD:
   # 流式判断配置
   streaming:
     min_text_length: 2      # 最小文本长度才开始判断
-    max_wait_ms: 5000      # 最大等待时间（5秒） # 这两个参数没用到
+    max_wait_ms: 5000      # 最大等待时间（5秒）
   states:
     - "complete"      # 用户说完
     - "continuing"    # 用户继续说
@@ -110,8 +110,8 @@ ACOUSTIC_VAD:
   engine: "silero"  # 使用Silero VAD
   aggressiveness: 3  # WebRTC备选时使用
   frame_duration_ms: 20  # 帧长20ms
-  silence_threshold_ms: 1500  # 静音超时1500ms（增加到1.5秒，避免在说话停顿时截断）
-  padding_duration_ms: 250  # 增加padding，保留更多上下文
+  silence_threshold_ms: 500  # 静音超时500ms
+  padding_duration_ms: 150
 
 # WebSocket服务器配置
 SERVER:

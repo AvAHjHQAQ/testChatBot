@@ -66,7 +66,7 @@ class VoiceDialogSystem:
 
     # 超时配置（毫秒）
     MAX_SILENCE_WAIT_MS = 2000  # 最大静音等待时间
-    MIN_SPEECH_DURATION_MS = 300  # 最小语音时长 # 没用到该参数
+    MIN_SPEECH_DURATION_MS = 300  # 最小语音时长
     INTERRUPT_CONFIRM_TIMEOUT_MS = 1500  # 打断确认超时时间
     SILENCE_THRESHOLD_MS = 500  # 静音检测阈值
 
@@ -313,7 +313,7 @@ class VoiceDialogSystem:
                 should_finalize = True
                 finalize_reason = f"静音超时({silence_elapsed:.0f}ms)"
 
-            # 条件3: 有足够文本且静音超过阈值
+            # 条件3: 有足够文本且静音超过500ms（与静音超时一致）
             elif silence_elapsed >= self.SILENCE_THRESHOLD_MS and len(self._asr_text_buffer) >= 5:
                 should_finalize = True
                 finalize_reason = "静音+文本充足"
