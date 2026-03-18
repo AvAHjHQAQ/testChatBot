@@ -411,27 +411,27 @@ class VoiceDialogSystem:
         - 非有效人声（咳嗽、嗯等）：取消打断，继续播报
         - 待判断：继续等待
 
+        v3.7: 修复超时逻辑，用户说长句子不应被误判为超时
+        - 只在长时间无有效文本时才判断为超时
+        - 如果已有有效文本，继续等待语义完整
+
         Returns:
             "valid" - 确认是有效人声（应停止TTS）
             "filler" - 语气助词/非有效人声（应取消打断，继续播报）
             "complete" - 语义完整（应进入LLM处理）
             "pending" - 仍在判断中
-            "timeout" - 超时
+            "timeout" - 超时（长时间无有效内容）
         """
         import time
 
         text = self._asr_text_buffer.strip()
-
-        # 超时检查
         elapsed = time.time() * 1000 - self._interrupt_start_time
-        if elapsed > self.INTERRUPT_CONFIRM_TIMEOUT_MS:
-            return "timeout"
 
         # 文本为空，检查是否超时
         if not text:
-            # v3.6: 延长等待时间，给ASR更多时间识别
-            if elapsed > 1500:  # 从800ms增加到1200ms
-                logger.info(f"[打断] 长时间无有效文本，判断为噪声，取消打断")
+            # v3.7: 只有在长时间无文本时才判断为噪声/超时
+            if elapsed > self.INTERRUPT_CONFIRM_TIMEOUT_MS:
+                logger.info(f"[打断] 长时间({elapsed:.0f}ms)无有效文本，判断为噪声，取消打断")
                 return "noise"
             return "pending"
 
@@ -442,6 +442,7 @@ class VoiceDialogSystem:
             # 是有效人声，检查是否语义完整
             if self.semantic_vad.processor.is_complete():
                 return "complete"
+            # v3.7: 已确认是有效人声，不判断超时，继续等待用户说完
             return "valid"
 
         elif voice_validity == VoiceValidity.FILLER:
@@ -454,20 +455,15 @@ class VoiceDialogSystem:
             logger.info(f"[打断] 检测到噪声，取消打断")
             return "noise"
 
-        # v3.6: 移除过于严格的短文本判断
-        # 之前的逻辑：文本<=2字符且等待>500ms就判断为噪声
-        # 这会导致用户刚开始说话时被误判
-        # 现在改为：只有当文本完全是语气词时才判断为噪声
-        
-        # 检查文本内容是否像噪声/非有效人声
+        # v3.7: 检查文本内容是否像噪声/非有效人声
         # 只有当文本很短且全是重复字符或语气词时，才可能是噪声
-        if len(text) <= 2 and elapsed > 800:  # 从500ms增加到800ms
+        if len(text) <= 2 and elapsed > 800:
             # 检查是否是重复字符或常见语气词
             noise_patterns = ["嗯", "啊", "呃", "额", "咳", "哼", "哈"]
             if all(c in noise_patterns for c in text):
                 logger.info(f"[打断] 短文本判断为噪声: '{text}'，取消打断")
                 return "noise"
-            # v3.6: 如果不是纯语气词，继续等待，不要误判
+            # 如果不是纯语气词，继续等待，不要误判
             logger.debug(f"[打断] 短文本继续等待: '{text}'")
 
         return "pending"
