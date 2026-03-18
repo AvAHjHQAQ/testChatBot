@@ -144,6 +144,8 @@ class VoiceDialogSystem:
         self._on_interrupt_pause_callbacks: List[Callable] = []  # 打断暂停回调
         self._on_interrupt_resume_callbacks: List[Callable] = []  # 打断恢复回调
         self._on_interrupt_confirmed_callbacks: List[Callable] = []  # 打断确认回调
+        self._first_interrupt_audio_processed = False  # 打断确认模式下首个音频块是否已处理
+        self._pending_interrupt_audio: Optional[bytes] = None  # 启动打断确认模式时缓存的音频块
 
         # 添加状态监听
         self.dialog_state.add_listener(self._on_state_change)
@@ -230,8 +232,23 @@ class VoiceDialogSystem:
 
         # ========== 1. 打断确认模式下的处理 ==========
         if self._interrupt_confirm_mode and self._is_streaming:
-            # 继续接收音频进行ASR识别
-            await self._process_audio_parallel(audio_chunk)
+            # v3.7: 检查是否是刚进入打断确认模式（第一次进入时合并处理缓存的音频块）
+            if not self._first_interrupt_audio_processed:
+                # 标记已处理
+                self._first_interrupt_audio_processed = True
+                
+                # 合并缓存的音频块和当前音频块一起处理
+                if self._pending_interrupt_audio:
+                    merged_audio = self._pending_interrupt_audio + audio_chunk
+                    logger.debug(f"[打断] 合并音频块: 缓存 {len(self._pending_interrupt_audio)} + 当前 {len(audio_chunk)} = {len(merged_audio)} 字节")
+                    await self._process_audio_parallel(merged_audio)
+                    self._pending_interrupt_audio = None  # 清空缓存
+                else:
+                    # 没有缓存的音频块，直接处理当前音频块
+                    await self._process_audio_parallel(audio_chunk)
+            else:
+                # 继续接收音频进行ASR识别
+                await self._process_audio_parallel(audio_chunk)
 
             # 检查是否确认打断（有效人声）
             interrupt_result = self._check_interrupt_voice_validity()
@@ -279,15 +296,13 @@ class VoiceDialogSystem:
         # v3.4: 扩展到 THINKING 状态，允许在 LLM 推理期间打断
         if self.dialog_state.state in [DialogState.SPEAKING, DialogState.THINKING]:
             if self.acoustic_vad.check_interrupt(audio_chunk):
-                # v3.6: 先处理当前音频块，不要丢弃
                 # 检测到人声，启动打断确认模式
-                logger.info(f"[打断] 检测到人声，当前音频块需要处理")
+                logger.info(f"[打断] 检测到人声，缓存当前音频块")
                 result = await self._start_interrupt_confirmation()
-                # 如果成功进入打断确认模式，处理当前音频块
+                # v3.7: 缓存当前音频块，等待与下一个音频块合并处理
                 if self._interrupt_confirm_mode:
-                    # 将当前音频块发送给ASR处理
-                    await self._process_audio_parallel(audio_chunk)
-                    logger.debug(f"[打断] 已处理当前音频块")
+                    self._pending_interrupt_audio = audio_chunk
+                    logger.debug(f"[打断] 已缓存当前音频块: {len(audio_chunk)} 字节")
                 return result
 
         # ========== 3. 声学VAD处理 ==========
@@ -376,6 +391,8 @@ class VoiceDialogSystem:
         self._interrupt_confirm_mode = True
         self._interrupt_start_time = time.time() * 1000
         self._tts_stopped_for_interrupt = False
+        self._first_interrupt_audio_processed = False  # v3.7: 重置首个音频块处理标志
+        self._pending_interrupt_audio = None  # v3.7: 清空待处理音频缓存
         # 不清空 ASR 缓冲区，保留之前的内容
         # self._asr_text_buffer = ""  # 注释掉，避免清除之前的内容
 
