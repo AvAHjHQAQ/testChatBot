@@ -217,3 +217,78 @@ class Message:
         if self.name:
             msg["name"] = self.name
         return msg
+
+
+class InterruptState(Enum):
+    """打断状态"""
+    NONE = "none"                    # 无打断
+    DETECTED = "detected"            # 检测到人声，等待确认
+    PAUSED = "paused"                # 已暂停，缓存中
+    CONFIRMED = "confirmed"          # 确认打断，开始新任务
+    CANCELLED = "cancelled"          # 取消打断，恢复播放
+
+
+@dataclass
+class InterruptCache:
+    """
+    打断缓存 - 用于暂存 LLM 流式输出和 TTS 音频
+    
+    当检测到有效人声时：
+    1. 暂停前端 LLM 回显和 TTS 播放
+    2. 后端流式任务继续执行，结果缓存到此结构
+    3. 如果确认打断：清空缓存，开始新任务
+    4. 如果取消打断：发送缓存给前端，恢复播放
+    """
+    # LLM 文本缓存
+    llm_chunks: List[str] = field(default_factory=list)
+    llm_full_text: str = ""
+    
+    # TTS 音频缓存
+    audio_chunks: List[bytes] = field(default_factory=list)
+    
+    # 缓存时间戳
+    start_time: float = field(default_factory=lambda: datetime.now().timestamp())
+    last_update_time: float = field(default_factory=lambda: datetime.now().timestamp())
+    
+    # 打断状态
+    state: InterruptState = InterruptState.NONE
+    
+    # 是否已通知前端暂停
+    frontend_paused: bool = False
+    
+    def add_llm_chunk(self, chunk: str):
+        """添加 LLM 文本块"""
+        self.llm_chunks.append(chunk)
+        self.llm_full_text += chunk
+        self.last_update_time = datetime.now().timestamp()
+    
+    def add_audio_chunk(self, audio: bytes):
+        """添加 TTS 音频块"""
+        self.audio_chunks.append(audio)
+        self.last_update_time = datetime.now().timestamp()
+    
+    def clear(self):
+        """清空缓存"""
+        self.llm_chunks.clear()
+        self.llm_full_text = ""
+        self.audio_chunks.clear()
+        self.state = InterruptState.NONE
+        self.frontend_paused = False
+    
+    def has_content(self) -> bool:
+        """是否有缓存内容"""
+        return bool(self.llm_chunks) or bool(self.audio_chunks)
+    
+    def get_total_audio_size(self) -> int:
+        """获取总音频大小"""
+        return sum(len(a) for a in self.audio_chunks)
+    
+    def to_dict(self) -> Dict:
+        return {
+            "llm_chunks_count": len(self.llm_chunks),
+            "llm_full_text_length": len(self.llm_full_text),
+            "audio_chunks_count": len(self.audio_chunks),
+            "total_audio_size": self.get_total_audio_size(),
+            "state": self.state.value,
+            "frontend_paused": self.frontend_paused
+        }

@@ -104,6 +104,16 @@ class ConnectionManager:
         system.on_tts_state_change(lambda enabled: asyncio.create_task(
             self.send_tts_state(client_id, enabled)
         ))
+        # v3.7: 注册打断相关回调
+        system.on_interrupt_pause(lambda: asyncio.create_task(
+            self.send_interrupt_pause(client_id)
+        ))
+        system.on_interrupt_resume(lambda: asyncio.create_task(
+            self.send_interrupt_resume(client_id)
+        ))
+        system.on_interrupt_confirmed(lambda: asyncio.create_task(
+            self.send_interrupt_confirmed(client_id)
+        ))
 
         logger.info(f"客户端连接: {client_id}")
 
@@ -339,6 +349,29 @@ class ConnectionManager:
             "data": {"enabled": enabled}
         })
         logger.info(f"[TTS] 已通知客户端 TTS 状态: {enabled}")
+
+    # ========== v3.7 打断消息 ==========
+
+    async def send_interrupt_pause(self, client_id: str):
+        """发送打断暂停消息 - 通知前端暂停 LLM 回显和 TTS 播放"""
+        await self.send_json(client_id, {
+            "type": "interrupt_pause"
+        })
+        logger.info(f"[打断] 已通知前端暂停播放: {client_id}")
+
+    async def send_interrupt_resume(self, client_id: str):
+        """发送打断恢复消息 - 通知前端恢复 LLM 回显和 TTS 播放"""
+        await self.send_json(client_id, {
+            "type": "interrupt_resume"
+        })
+        logger.info(f"[打断] 已通知前端恢复播放: {client_id}")
+
+    async def send_interrupt_confirmed(self, client_id: str):
+        """发送打断确认消息 - 通知前端打断已确认，清空状态"""
+        await self.send_json(client_id, {
+            "type": "interrupt_confirmed"
+        })
+        logger.info(f"[打断] 已通知前端打断确认: {client_id}")
 
     def get_system(self, client_id: str) -> VoiceDialogSystem:
         return self.dialog_systems.get(client_id)
